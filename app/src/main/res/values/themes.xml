@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- High contrast dark theme (Windows 98 style) -->
+    <style name="HighContrastDarkTheme" parent="AppTheme">
+        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">#FF0000</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:textColorPrimary">@color/colorTextPrimary</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+    </style>
+
+    <!-- Light theme -->
+    <style name="LightTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryDark">#E5E5E5</item>
+        <item name="colorAccent">#0066CC</item>
+        <item name="android:windowBackground">@color/colorBackgroundLight</item>
+        <item name="android:textColorPrimary">@color/colorTextPrimaryLight</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondaryLight</item>
+    </style>
+</resources>

@@ -1,0 +1,52 @@
+modules = ["kotlin"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Android App"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "android_emulator"
+
+[[workflows.workflow]]
+name = "Android App"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./gradlew :app:assembleDebug"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "android_emulator"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./gradlew installDebug && adb shell am start -n com.example.codeeditor/.MainActivity"
+
+[deployment]
+run = ["sh", "-c", "./gradlew :app:assembleDebug"]

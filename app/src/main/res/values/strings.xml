@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Code Editor</string>
+    
+    <!-- Menu items -->
+    <string name="open_file">Open</string>
+    <string name="save_file">Save</string>
+    <string name="save_as">Save As</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    
+    <!-- Dialog buttons -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="discard">Discard</string>
+    
+    <!-- Settings labels -->
+    <string name="dark_theme">Dark Theme</string>
+    <string name="font_size">Font Size</string>
+    <string name="backup_interval_minutes">Backup Interval (minutes)</string>
+    <string name="drawer_position">Drawer Position</string>
+    <string name="show_drawer_handle">Show Drawer Handle</string>
+    
+    <!-- About screen text -->
+    <string name="about_description">A powerful code editor for Android with syntax highlighting for multiple languages, auto-backup, and tab-based interface.</string>
+    
+    <!-- Dialog messages -->
+    <string name="unsaved_changes">There are unsaved changes. Would you like to save?</string>
+    <string name="save_before_exit">Save changes before exiting?</string>
+</resources>

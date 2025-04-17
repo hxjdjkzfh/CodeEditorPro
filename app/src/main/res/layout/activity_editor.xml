@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorBackground"
+    tools:context=".EditorActivity">
+
+    <!-- Tab bar -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tabs_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/tabBarBackground"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <!-- Main editor area with drawer -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Code editor -->
+        <io.github.rosemoe.sora.widget.CodeEditor
+            android:id="@+id/code_editor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lineNumberEnabled="true" />
+
+        <!-- Bottom drawer with handle -->
+        <LinearLayout
+            android:id="@+id/drawer_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <!-- Drawer handle -->
+            <View
+                android:id="@+id/drawer_handle"
+                android:layout_width="40dp"
+                android:layout_height="6dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="2dp"
+                android:background="@drawable/drawer_handle" />
+
+            <!-- Drawer content -->
+            <LinearLayout
+                android:id="@+id/drawer_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/drawerBackground"
+                android:padding="8dp">
+
+                <ImageButton
+                    android:id="@+id/open_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_upload"
+                    android:contentDescription="@string/open_file"
+                    style="?android:attr/buttonBarButtonStyle" />
+
+                <ImageButton
+                    android:id="@+id/save_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_save"
+                    android:contentDescription="@string/save_file"
+                    style="?android:attr/buttonBarButtonStyle" />
+
+                <ImageButton
+                    android:id="@+id/save_as_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:contentDescription="@string/save_as"
+                    style="?android:attr/buttonBarButtonStyle" />
+
+                <ImageButton
+                    android:id="@+id/settings_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_preferences"
+                    android:contentDescription="@string/settings"
+                    style="?android:attr/buttonBarButtonStyle" />
+
+                <ImageButton
+                    android:id="@+id/about_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_info_details"
+                    android:contentDescription="@string/about"
+                    style="?android:attr/buttonBarButtonStyle" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
