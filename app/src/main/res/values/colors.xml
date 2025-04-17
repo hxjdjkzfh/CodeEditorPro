@@ -1,32 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base theme colors -->
-    <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <!-- Primary colors -->
+    <color name="colorPrimary">#FF0000</color>
+    <color name="colorPrimaryDark">#990000</color>
     <color name="colorAccent">#FF0000</color>
-    
+    <color name="colorSecondary">#666666</color>
+
+    <!-- Background and surface colors -->
+    <color name="colorBackground">#000000</color>
+    <color name="colorBackgroundLight">#FFFFFF</color>
+    <color name="colorSurface">#202020</color>
+
     <!-- Text colors -->
     <color name="colorTextPrimary">#FFFFFF</color>
-    <color name="colorTextSecondary">#B3FFFFFF</color>
-    
-    <!-- Background colors -->
-    <color name="colorBackground">#000000</color>
-    
-    <!-- Tab colors -->
-    <color name="tabBarBackground">#1F1F1F</color>
-    <color name="tabBackground">#2F2F2F</color>
-    <color name="tabSelectedBackground">#FF0000</color>
-    <color name="tabUnsavedBackground">#FFCC00</color>
-    
-    <!-- Drawer colors -->
-    <color name="drawerBackground">#1F1F1F</color>
-    <color name="drawerHandleColor">#777777</color>
-    
-    <!-- Light theme colors (for reference) -->
-    <color name="colorBackgroundLight">#FFFFFF</color>
     <color name="colorTextPrimaryLight">#000000</color>
-    <color name="colorTextSecondaryLight">#757575</color>
-    <color name="tabBarBackgroundLight">#F2F2F2</color>
-    <color name="tabBackgroundLight">#E5E5E5</color>
-    <color name="tabSelectedBackgroundLight">#0066CC</color>
+    <color name="colorTextSecondary">#BBBBBB</color>
+    <color name="colorTextOnAccent">#FFFFFF</color>
+    <color name="colorTextOnSecondary">#FFFFFF</color>
+
+    <!-- Tab colors -->
+    <color name="tabBackground">#202020</color>
+    <color name="tabSelectedBackground">#FF0000</color>
+    <color name="tabUnsavedBackground">#FFD700</color>
 </resources>

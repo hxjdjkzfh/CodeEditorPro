@@ -10,23 +10,31 @@ import com.example.codeeditor.R
 import com.example.codeeditor.model.FileTab
 
 /**
- * Adapter for the tabs RecyclerView
+ * Adapter for the tabs in the editor
  */
 class TabAdapter(
     private val tabs: List<FileTab>,
-    private val listener: TabInteractionListener
+    private val onTabSelected: (Int) -> Unit
 ) : RecyclerView.Adapter<TabAdapter.TabViewHolder>() {
     
-    private var selectedTabPosition = -1
+    private var selectedTabIndex = 0
     
-    interface TabInteractionListener {
-        fun onTabSelected(position: Int)
-        fun onTabLongPressed(position: Int)
-    }
-    
-    class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tabCardView: CardView = itemView.findViewById(R.id.tab_card_view)
-        val tabNameText: TextView = itemView.findViewById(R.id.tab_name_text)
+    inner class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tabCard: CardView = itemView.findViewById(R.id.tab_card_view)
+        val tabName: TextView = itemView.findViewById(R.id.tab_name_text)
+        
+        init {
+            // Normal click listener for tab selection
+            itemView.setOnClickListener {
+                onTabSelected(bindingAdapterPosition)
+            }
+            
+            // Long press listener for tab closing
+            itemView.setOnLongClickListener {
+                // Tab closing is handled in the activity
+                true
+            }
+        }
     }
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TabViewHolder {
@@ -38,49 +46,39 @@ class TabAdapter(
     override fun onBindViewHolder(holder: TabViewHolder, position: Int) {
         val tab = tabs[position]
         
-        // Set tab name
-        holder.tabNameText.text = tab.getShortName()
+        // Set tab name (shortened)
+        holder.tabName.text = tab.getShortName()
         
-        // Set background based on selected state and modified state
-        if (position == selectedTabPosition) {
-            holder.tabCardView.setCardBackgroundColor(
+        // Set selected state
+        if (position == selectedTabIndex) {
+            holder.tabCard.setCardBackgroundColor(
                 holder.itemView.context.getColor(R.color.tabSelectedBackground)
             )
-        } else if (tab.isModified || tab.isNew) {
-            // Yellow background for unsaved tabs
-            holder.tabCardView.setCardBackgroundColor(
-                holder.itemView.context.getColor(R.color.tabUnsavedBackground)
-            )
         } else {
-            holder.tabCardView.setCardBackgroundColor(
-                holder.itemView.context.getColor(R.color.tabBackground)
-            )
-        }
-        
-        // Set click listener
-        holder.tabCardView.setOnClickListener {
-            listener.onTabSelected(position)
-        }
-        
-        // Set long click listener
-        holder.tabCardView.setOnLongClickListener {
-            listener.onTabLongPressed(position)
-            true
+            // Set unsaved state with different background
+            if (tab.isUnsaved) {
+                holder.tabCard.setCardBackgroundColor(
+                    holder.itemView.context.getColor(R.color.tabUnsavedBackground)
+                )
+            } else {
+                holder.tabCard.setCardBackgroundColor(
+                    holder.itemView.context.getColor(R.color.tabBackground)
+                )
+            }
         }
     }
     
     override fun getItemCount(): Int = tabs.size
     
+    /**
+     * Update the selected tab
+     */
     fun setSelectedTab(position: Int) {
-        val previousSelected = selectedTabPosition
-        selectedTabPosition = position
+        val previousSelected = selectedTabIndex
+        selectedTabIndex = position
         
-        if (previousSelected >= 0) {
-            notifyItemChanged(previousSelected)
-        }
-        
-        if (selectedTabPosition >= 0) {
-            notifyItemChanged(selectedTabPosition)
-        }
+        // Update the views
+        notifyItemChanged(previousSelected)
+        notifyItemChanged(selectedTabIndex)
     }
 }

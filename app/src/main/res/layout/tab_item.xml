@@ -1,29 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tab_card_view"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:layout_margin="2dp"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_height="36dp"
+    android:layout_margin="4dp"
+    app:cardBackgroundColor="@color/tabBackground"
     app:cardCornerRadius="4dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/tabBackground">
+    app:cardElevation="2dp">
 
     <TextView
         android:id="@+id/tab_name_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:minWidth="80dp"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
         android:textColor="@color/colorTextPrimary"
         android:textSize="14sp"
-        android:maxLength="15"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        tools:text="file.txt" />
 
 </androidx.cardview.widget.CardView>

@@ -1,4 +1,4 @@
-modules = ["kotlin"]
+modules = ["kotlin", "java-17"]
 
 [nix]
 channel = "stable-24_05"
@@ -31,8 +31,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./gradlew :app:assembleDebug"
-waitForPort = 5000
+args = "gradle build --info"
 
 [[workflows.workflow]]
 name = "android_emulator"
@@ -46,7 +45,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./gradlew installDebug && adb shell am start -n com.example.codeeditor/.MainActivity"
+args = "gradle installDebug"
 
 [deployment]
-run = ["sh", "-c", "./gradlew :app:assembleDebug"]
+run = ["sh", "-c", "gradle build --info"]

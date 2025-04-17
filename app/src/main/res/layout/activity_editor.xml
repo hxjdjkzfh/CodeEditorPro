@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,99 +8,105 @@
     android:background="@color/colorBackground"
     tools:context=".EditorActivity">
 
-    <!-- Tab bar -->
+    <!-- Tabs area -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tabs_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/tabBarBackground"
+        android:layout_height="48dp"
+        android:background="@color/tabBackground"
+        android:clipToPadding="false"
         android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/tab_item" />
 
-    <!-- Main editor area with drawer -->
-    <RelativeLayout
+    <!-- Code editor area -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- Code editor -->
         <io.github.rosemoe.sora.widget.CodeEditor
             android:id="@+id/code_editor"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:lineNumberEnabled="true" />
+            android:layout_height="match_parent" />
 
-        <!-- Bottom drawer with handle -->
+        <!-- Drawer container - position will be set programmatically -->
         <LinearLayout
             android:id="@+id/drawer_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical">
+            android:layout_gravity="bottom">
 
             <!-- Drawer handle -->
             <View
                 android:id="@+id/drawer_handle"
-                android:layout_width="40dp"
-                android:layout_height="6dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
                 android:background="@drawable/drawer_handle" />
 
-            <!-- Drawer content -->
+            <!-- Drawer layout -->
             <LinearLayout
                 android:id="@+id/drawer_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorSurface"
                 android:orientation="horizontal"
-                android:background="@color/drawerBackground"
                 android:padding="8dp">
 
                 <ImageButton
                     android:id="@+id/open_button"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_upload"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/open_file"
-                    style="?android:attr/buttonBarButtonStyle" />
+                    android:src="@android:drawable/ic_menu_upload"
+                    android:tint="@color/colorAccent" />
 
                 <ImageButton
                     android:id="@+id/save_button"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_save"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/save_file"
-                    style="?android:attr/buttonBarButtonStyle" />
+                    android:src="@android:drawable/ic_menu_save"
+                    android:tint="@color/colorAccent" />
 
                 <ImageButton
                     android:id="@+id/save_as_button"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_edit"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/save_as"
-                    style="?android:attr/buttonBarButtonStyle" />
+                    android:src="@android:drawable/ic_menu_save"
+                    android:tint="@color/colorAccent" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/settings_button"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_preferences"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/settings"
-                    style="?android:attr/buttonBarButtonStyle" />
+                    android:src="@android:drawable/ic_menu_preferences"
+                    android:tint="@color/colorAccent" />
 
                 <ImageButton
                     android:id="@+id/about_button"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_info_details"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/about"
-                    style="?android:attr/buttonBarButtonStyle" />
+                    android:src="@android:drawable/ic_menu_info_details"
+                    android:tint="@color/colorAccent" />
+
             </LinearLayout>
         </LinearLayout>
-    </RelativeLayout>
+    </FrameLayout>
+
 </LinearLayout>

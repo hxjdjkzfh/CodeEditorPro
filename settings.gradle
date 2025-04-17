@@ -1,0 +1,2 @@
+rootProject.name = "CodeEditor"
+include ':app'

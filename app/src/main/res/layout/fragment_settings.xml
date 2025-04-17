@@ -1,151 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/colorBackground">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/settings"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="@color/colorTextPrimary" />
-
-    <!-- Theme setting -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/dark_theme"
-            android:textColor="@color/colorTextPrimary" />
+            android:layout_marginBottom="16dp"
+            android:text="@string/settings"
+            android:textAlignment="center"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <Switch
-            android:id="@+id/theme_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true" />
-    </LinearLayout>
-
-    <!-- Font size setting -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
-
+        <!-- Font Size Setting -->
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
             android:text="@string/font_size"
-            android:textColor="@color/colorTextPrimary" />
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/font_size_edit"
-            android:layout_width="64dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:text="14"
-            android:textAlignment="center" />
-    </LinearLayout>
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <!-- Backup interval setting -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+            <SeekBar
+                android:id="@+id/font_size_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="28" />
 
+            <TextView
+                android:id="@+id/font_size_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="16sp"
+                tools:text="14" />
+
+        </LinearLayout>
+
+        <!-- Backup Interval Setting -->
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
             android:text="@string/backup_interval_minutes"
-            android:textColor="@color/colorTextPrimary" />
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/backup_interval_edit"
-            android:layout_width="64dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:text="1"
-            android:textAlignment="center" />
-    </LinearLayout>
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <!-- Drawer position setting -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+            <SeekBar
+                android:id="@+id/backup_interval_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="59" />
 
+            <TextView
+                android:id="@+id/backup_interval_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="16sp"
+                tools:text="1" />
+
+        </LinearLayout>
+
+        <!-- Dark Theme Setting -->
+        <CheckBox
+            android:id="@+id/dark_theme_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/dark_theme"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Line Numbers Setting -->
+        <CheckBox
+            android:id="@+id/show_line_numbers_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_line_numbers"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Drawer Position Setting -->
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
             android:text="@string/drawer_position"
-            android:textColor="@color/colorTextPrimary" />
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
 
-        <Spinner
-            android:id="@+id/drawer_position_spinner"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <!-- Show drawer handle setting -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="0dp"
+        <RadioGroup
+            android:id="@+id/drawer_position_radio_group"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/show_drawer_handle"
-            android:textColor="@color/colorTextPrimary" />
+            android:layout_marginBottom="16dp">
 
+            <RadioButton
+                android:id="@+id/position_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_bottom"
+                android:textColor="@color/colorTextPrimary" />
+
+            <RadioButton
+                android:id="@+id/position_left"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_left"
+                android:textColor="@color/colorTextPrimary" />
+
+            <RadioButton
+                android:id="@+id/position_right"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_right"
+                android:textColor="@color/colorTextPrimary" />
+
+        </RadioGroup>
+
+        <!-- Show Handle Setting -->
         <CheckBox
             android:id="@+id/show_handle_checkbox"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checked="true" />
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_drawer_handle"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancel_settings_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="@color/colorSecondary"
+                android:text="@string/cancel"
+                android:textColor="@color/colorTextOnSecondary" />
+
+            <Button
+                android:id="@+id/save_settings_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="@string/save"
+                android:textColor="@color/colorTextOnAccent" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- Buttons -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
-
-        <Button
-            android:id="@+id/cancel_settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/save_settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/save" />
-    </LinearLayout>
-</LinearLayout>
+</ScrollView>
