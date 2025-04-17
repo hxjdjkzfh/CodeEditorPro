@@ -15,10 +15,6 @@ author = "agent"
 task = "workflow.run"
 args = "Android App"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "android_emulator"
-
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -31,21 +27,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gradle build --info"
-
-[[workflows.workflow]]
-name = "android_emulator"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "gradle installDebug"
+args = "cd /home/runner/workspace && ./build_android.sh"
 
 [deployment]
-run = ["sh", "-c", "gradle build --info"]
+run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]
