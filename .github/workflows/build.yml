@@ -1,4 +1,4 @@
-name: Build APK with error reporting
+name: Build APK with Gradle version check
 
 on:
   push:
@@ -21,26 +21,21 @@ jobs:
       - name: Set Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build APK
+      - name: Show Gradle version and build
         id: build_apk
         run: |
-          set +e
-          ./gradlew assembleDebug --stacktrace > build.log 2>&1
-          echo "status=$?" >> $GITHUB_OUTPUT
+          ./gradlew --version
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Extract error log and send to Telegram
-        if: steps.build_apk.outputs.status != 0
-        run: |
-          grep -iE "FAILURE|Exception|Caused by|error:|BUILD FAILED" build.log | tail -n 50 > error_short.log
-          curl -F document=@error_short.log \
-               -F chat_id=${{ secrets.CHAT_ID }} \
-               -F caption="❌ Ошибка сборки CodeEditorPro" \
-               "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument"
-
-      - name: Upload full log
-        if: steps.build_apk.outputs.status != 0
+      - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: full-log
-          path: build.log
+          name: app-debug
+          path: "**/build/outputs/apk/debug/*.apk"
+
+      - name: Upload build log (on failure)
+        if: failure()
+        run: |
+          echo "No explicit log file. Consider redirecting output to log file in future."
 
