@@ -1,4 +1,4 @@
-name: Build APK and Send to Telegram
+name: Build APK
 
 on:
   push:
@@ -21,18 +21,12 @@ jobs:
       - name: Grant permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build APK
-        run: ./gradlew assembleRelease
+      - name: Build APK (debug mode)
+        run: ./gradlew assembleDebug --stacktrace
 
-      - name: Find built APK
-        id: find_apk
-        run: |
-          APK_PATH=$(find . -name "*release*.apk" | head -n 1)
-          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug
+          path: **/build/outputs/apk/debug/*.apk
 
-      - name: Send APK to Telegram
-        run: |
-          curl -F document=@"${{ steps.find_apk.outputs.apk_path }}" \
-               -F chat_id=${{ secrets.CHAT_ID }} \
-               -F caption="✅ APK собран и отправлен в Telegram" \
-               "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument"
