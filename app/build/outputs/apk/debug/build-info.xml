@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gradle-build-info>
+  <build>
+    <actions>
+      <action taskName="validateSigningDebug" />
+    </actions>
+  </build>
+  <unhandled-signatures value="0" />
+</gradle-build-info>
