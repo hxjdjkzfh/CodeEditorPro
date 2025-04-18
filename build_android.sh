@@ -27,7 +27,7 @@ ANDROID_APP_DIR="android-webview-app"
 OUTPUT_APK="./code-editor.apk"
 
 # Определяем режим работы
-BUILD_MODE="webview"  # По умолчанию используем WebView
+BUILD_MODE="sdk"  # По умолчанию используем SDK
 
 if [ "$1" == "sdk" ]; then
     BUILD_MODE="sdk"
@@ -35,12 +35,15 @@ if [ "$1" == "sdk" ]; then
 elif [ "$1" == "auto" ]; then
     BUILD_MODE="auto"
     echo -e "${YELLOW}[+] Выбран автоматический режим (попытка использовать оба метода)${NC}"
-elif [ "$1" == "webview" ] || [ -z "$1" ]; then
+elif [ "$1" == "webview" ]; then
     BUILD_MODE="webview"
     echo -e "${YELLOW}[+] Выбран режим сборки через WebView${NC}"
+elif [ -z "$1" ]; then
+    BUILD_MODE="sdk"
+    echo -e "${YELLOW}[+] Выбран режим полной сборки через Android SDK (по умолчанию)${NC}"
 else
-    echo -e "${RED}[!] Неизвестный режим: $1. Используется WebView режим по умолчанию${NC}"
-    BUILD_MODE="webview"
+    echo -e "${RED}[!] Неизвестный режим: $1. Используется SDK режим по умолчанию${NC}"
+    BUILD_MODE="sdk"
 fi
 
 # Функция для сборки через WebView
@@ -63,11 +66,12 @@ build_webview() {
 # Функция для сборки через Android SDK
 build_sdk() {
     echo -e "${BLUE}[+] Запуск метода сборки через Android SDK...${NC}"
-    chmod +x create_full_apk.py
-    python3 create_full_apk.py "$WEB_APP_DIR" "$ANDROID_APP_DIR" "$OUTPUT_APK"
+    chmod +x build_full_sdk_apk.sh
+    ./build_full_sdk_apk.sh
     
-    if [ -f "$OUTPUT_APK" ]; then
-        echo -e "${GREEN}[+] APK успешно собран через Android SDK${NC}"
+    if [ -f "code-editor-pro.apk" ]; then
+        cp code-editor-pro.apk "$OUTPUT_APK"
+        echo -e "${GREEN}[+] APK успешно собран через Android SDK и скопирован в $OUTPUT_APK${NC}"
         return 0
     else
         echo -e "${RED}[!] Не удалось создать APK через Android SDK${NC}"
