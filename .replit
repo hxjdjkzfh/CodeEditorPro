@@ -19,34 +19,6 @@ args = "Android App"
 task = "workflow.run"
 args = "Build App"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build and Push"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Real APK"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Fixed APK"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Direct APK"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build From Existing"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Working APK"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Large APK"
-
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -74,104 +46,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "chmod +x build_android.sh && ./build_android.sh sdk"
-
-[[workflows.workflow]]
-name = "Build and Push"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build_and_send.sh \"APK с правильным DEX файлом\""
-
-[[workflows.workflow]]
-name = "Build Real APK"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build_real_apk.sh"
-
-[[workflows.workflow]]
-name = "Build Fixed APK"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build_fixed_apk.sh"
-
-[[workflows.workflow]]
-name = "Build Direct APK"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./direct_apk_build.sh"
-
-[[workflows.workflow]]
-name = "Build From Existing"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build_from_existing.sh"
-
-[[workflows.workflow]]
-name = "Build Working APK"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./create_full_working_apk.sh"
-
-[[workflows.workflow]]
-name = "Build Large APK"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build_large_apk.sh"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]
