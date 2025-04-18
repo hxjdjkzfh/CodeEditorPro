@@ -1,7 +1,7 @@
 {
   "version": 3,
   "artifactType": {
-    "type": "APK", 
+    "type": "APK",
     "kind": "Directory"
   },
   "applicationId": "com.example.codeeditor",
@@ -16,33 +16,5 @@
       "outputFile": "app-debug.apk"
     }
   ],
-  "elementType": "File",
-  "applicationFeatures": {
-    "features": [
-      {
-        "name": "Syntax Highlighting",
-        "description": "Advanced syntax highlighting for multiple programming languages"
-      },
-      {
-        "name": "Tab-based Interface",
-        "description": "Chrome-like tabs for multiple file editing"
-      },
-      {
-        "name": "Line Numbering",
-        "description": "Notepad++ style line numbering for precise code reference"
-      },
-      {
-        "name": "Auto-backup",
-        "description": "Automatic backup every minute with configurable interval"
-      },
-      {
-        "name": "Dark Theme",
-        "description": "Windows 98 high contrast inspired theme for better readability"
-      },
-      {
-        "name": "Micro-animations",
-        "description": "Smooth animations for tab and file operations"
-      }
-    ]
-  }
+  "elementType": "File"
 }
