@@ -56,28 +56,28 @@ jobs:
         message: "✅ Code Editor APK built successfully!"
         document: app/build/outputs/apk/debug/app-debug.apk
         
-    # Create a GitHub Release when tags are pushed
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: app/build/outputs/apk/debug/app-debug.apk
-        name: Android App Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+    # Отключено по запросу
+    # - name: Create Release
+    #   id: create_release
+    #   uses: softprops/action-gh-release@v1
+    #   if: startsWith(github.ref, 'refs/tags/')
+    #   with:
+    #     files: app/build/outputs/apk/debug/app-debug.apk
+    #     name: Android App Release ${{ github.ref }}
+    #     draft: false
+    #     prerelease: false
         
-    # Create a release even for non-tags (every commit to main)
-    - name: Create auto-release for non-tags
-      uses: marvinpinto/action-automatic-releases@latest
-      if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
-      with:
-        repo_token: ${{ github.token }}
-        automatic_release_tag: "latest-standard"
-        prerelease: false
-        title: "Latest Standard Build"
-        files: |
-          app/build/outputs/apk/debug/app-debug.apk
+    # Отключено по запросу
+    # - name: Create auto-release for non-tags
+    #   uses: marvinpinto/action-automatic-releases@latest
+    #   if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+    #   with:
+    #     repo_token: ${{ github.token }}
+    #     automatic_release_tag: "latest-standard"
+    #     prerelease: false
+    #     title: "Latest Standard Build"
+    #     files: |
+    #       app/build/outputs/apk/debug/app-debug.apk
         
   build-webview-app:
     name: Build WebView Android App
@@ -629,12 +629,13 @@ EOF
         message: "✅ Code Editor WebView APK built successfully!"
         document: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
       
-    - name: Create WebView Release
-      id: create_webview_release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
-        name: WebView App Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+    # Отключено по запросу
+    # - name: Create WebView Release
+    #   id: create_webview_release
+    #   uses: softprops/action-gh-release@v1
+    #   if: startsWith(github.ref, 'refs/tags/')
+    #   with:
+    #     files: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
+    #     name: WebView App Release ${{ github.ref }}
+    #     draft: false
+    #     prerelease: false
