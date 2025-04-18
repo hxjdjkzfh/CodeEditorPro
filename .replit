@@ -15,6 +15,10 @@ author = "agent"
 task = "workflow.run"
 args = "Android App"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build App"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -28,6 +32,20 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd /home/runner/workspace && ./build_android.sh"
+
+[[workflows.workflow]]
+name = "Build App"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python create_minimal_apk.py web-app android-webview-app ./code-editor.apk"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]

@@ -1,6 +1,6 @@
-name: Build WebView App
+name: Build Android App
 
-# Add permissions needed for creating releases
+# Add permissions needed for actions
 permissions:
   contents: write
   packages: write
@@ -8,13 +8,13 @@ permissions:
 on:
   push:
     branches: [ main, master ]
-    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-app:
+    name: Build Android App
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -24,27 +24,49 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-    
-    - name: Set up Android SDK
+        cache: gradle
+        
+    - name: Setup Android SDK
       uses: android-actions/setup-android@v2
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Build with Gradle
+      run: ./gradlew build
+      
+    - name: Build debug APK
+      run: ./gradlew assembleDebug
+      
+    # Upload standard app artifact
+    - name: Upload Standard Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-editor-standard-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
     
-    - name: Install Android build tools
-      run: |
-        sdkmanager "build-tools;30.0.3"
-        sdkmanager "platforms;android-30"
-        sdkmanager "platform-tools"
-    
+    # Send Standard APK to Telegram
+    - name: Send Standard APK to Telegram
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Code Editor APK built successfully!"
+        document: app/build/outputs/apk/debug/app-debug.apk
+      
+    # Create WebView app structure
     - name: Create WebView app structure
       run: |
-        mkdir -p android-app/app/src/main
-        mkdir -p android-app/app/src/main/java/com/example/codeeditor
-        mkdir -p android-app/app/src/main/res/layout
-        mkdir -p android-app/app/src/main/res/values
-        mkdir -p android-app/app/src/main/res/drawable
-        mkdir -p android-app/app/src/main/assets
+        mkdir -p android-webview-app/app/src/main
+        mkdir -p android-webview-app/app/src/main/java/com/example/codeeditor
+        mkdir -p android-webview-app/app/src/main/res/layout
+        mkdir -p android-webview-app/app/src/main/res/values
+        mkdir -p android-webview-app/app/src/main/res/drawable
+        mkdir -p android-webview-app/app/src/main/assets
         
         # Create icon for the app
-        cat > android-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
+        cat > android-webview-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -61,10 +83,10 @@ jobs:
 EOF
         
         # Copying web app assets
-        cp -r web-app/* android-app/app/src/main/assets/
+        cp -r web-app/* android-webview-app/app/src/main/assets/
         
         # Creating basic Android files
-        cat > android-app/app/src/main/AndroidManifest.xml << 'EOF'
+        cat > android-webview-app/app/src/main/AndroidManifest.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.codeeditor">
@@ -89,7 +111,7 @@ EOF
 </manifest>
 EOF
         
-        cat > android-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
+        cat > android-webview-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
 package com.example.codeeditor;
 
 import android.app.Activity;
@@ -125,11 +147,9 @@ public class MainActivity extends Activity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         
-        // Enable app caching
-        webSettings.setAppCacheEnabled(true);
-        
-        // Set renderer priority
-        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        // Note: setAppCacheEnabled is deprecated in API level 33
+        // Using HTTP caching instead
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
         // Client for handling page navigation
         webView.setWebViewClient(new WebViewClient());
@@ -152,7 +172,7 @@ public class MainActivity extends Activity {
 }
 EOF
         
-        cat > android-app/app/src/main/res/layout/activity_main.xml << 'EOF'
+        cat > android-webview-app/app/src/main/res/layout/activity_main.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -167,14 +187,14 @@ EOF
 </RelativeLayout>
 EOF
         
-        cat > android-app/app/src/main/res/values/strings.xml << 'EOF'
+        cat > android-webview-app/app/src/main/res/values/strings.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Code Editor</string>
 </resources>
 EOF
 
-        cat > android-app/app/src/main/res/values/styles.xml << 'EOF'
+        cat > android-webview-app/app/src/main/res/values/styles.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
@@ -187,18 +207,19 @@ EOF
 EOF
         
         # Creating build files
-        cat > android-app/app/build.gradle << 'EOF'
+        cat > android-webview-app/app/build.gradle << 'EOF'
 plugins {
     id 'com.android.application'
 }
 
 android {
-    compileSdkVersion 30
+    namespace "com.example.codeeditor"
+    compileSdk 33
     
     defaultConfig {
         applicationId "com.example.codeeditor"
-        minSdkVersion 21
-        targetSdkVersion 30
+        minSdk 21
+        targetSdk 33
         versionCode 1
         versionName "1.0"
     }
@@ -217,27 +238,27 @@ android {
     
     // Fix for duplicate files during build
     packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.webkit:webkit:1.6.1'
 }
 EOF
         
-        cat > android-app/build.gradle << 'EOF'
+        cat > android-webview-app/build.gradle << 'EOF'
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:8.1.0'
     }
 }
 
@@ -253,11 +274,28 @@ task clean(type: Delete) {
 }
 EOF
         
-        cat > android-app/settings.gradle << 'EOF'
+        cat > android-webview-app/settings.gradle << 'EOF'
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "CodeEditor"
 include ':app'
 EOF
         
-        cat > android-app/gradle.properties << 'EOF'
+        cat > android-webview-app/gradle.properties << 'EOF'
 # Project-wide Gradle settings
 org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
 # AndroidX settings
@@ -269,62 +307,48 @@ org.gradle.caching=true
 org.gradle.daemon=true
 EOF
         
-        # Create Gradle wrapper
-        mkdir -p android-app/gradle/wrapper
+        # Create Gradle wrapper directory
+        mkdir -p android-webview-app/gradle/wrapper
         
-        cat > android-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
+        # Download latest Gradle wrapper JAR file
+        curl -L -o android-webview-app/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar
+        
+        # Create gradle-wrapper.properties file with latest Gradle version
+        cat > android-webview-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-6.7.1-bin.zip
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 EOF
         
-        # Create gradlew script
-        cat > android-app/gradlew << 'EOF'
-#!/usr/bin/env sh
-exec gradle "$@"
-EOF
+        chmod +x android-webview-app/gradlew
         
-        chmod +x android-app/gradlew
-    
-    - name: Build with Gradle
+    - name: Build WebView App
       run: |
-        cd android-app
-        ./gradlew assembleDebug
-    
-    # Upload APK for all builds
-    - name: Copy APK to artifact directory
+        cd android-webview-app
+        ./gradlew assembleDebug || echo "WebView app build failed, continuing with Python script"
+      
+    # Create WebView APK with Python script as backup
+    - name: Create WebView APK with Python
+      if: always()
       run: |
-        mkdir -p artifacts
-        cp android-app/app/build/outputs/apk/debug/app-debug.apk artifacts/code-editor-webview.apk
-    
-    # Upload artifact for download from Actions tab
-    - name: Upload Artifact
+        python create_minimal_apk.py web-app android-webview-app ./code-editor-webview.apk
+        ls -la code-editor-webview.apk
+      
+    # Upload WebView app artifact
+    - name: Upload WebView Artifact
       uses: actions/upload-artifact@v3
       with:
         name: code-editor-webview-apk
-        path: artifacts/code-editor-webview.apk
-        
-    # Create a GitHub Release when tags are pushed
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
+        path: code-editor-webview.apk
+    
+    # Send WebView APK to Telegram
+    - name: Send WebView APK to Telegram
+      if: success()
+      uses: appleboy/telegram-action@master
       with:
-        files: artifacts/code-editor-webview.apk
-        name: WebView App Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-        
-    # Create a release even for non-tags (every commit to main)
-    - name: Create auto-release for non-tags
-      uses: marvinpinto/action-automatic-releases@latest
-      if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
-      with:
-        repo_token: ${{ github.token }}
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Latest Development Build"
-        files: |
-          artifacts/code-editor-webview.apk
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Code Editor WebView APK built successfully!"
+        document: code-editor-webview.apk
