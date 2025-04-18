@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#FF0000</color>
+    <color name="colorBackground">#000000</color>
+    <color name="colorBackgroundLight">#FFFFFF</color>
+    <color name="colorPrimary">#FF0000</color>
+    <color name="colorPrimaryDark">#990000</color>
+    <color name="colorSecondary">#666666</color>
+    <color name="colorSurface">#202020</color>
+    <color name="colorTextOnAccent">#FFFFFF</color>
+    <color name="colorTextOnSecondary">#FFFFFF</color>
+    <color name="colorTextPrimary">#FFFFFF</color>
+    <color name="colorTextPrimaryLight">#000000</color>
+    <color name="colorTextSecondary">#BBBBBB</color>
+    <color name="tabBackground">#202020</color>
+    <color name="tabSelectedBackground">#FF0000</color>
+    <color name="tabUnsavedBackground">#FFD700</color>
+    <string name="app_name">Code Editor</string>
+    <string name="code_hint">Write your code here...</string>
+    <string name="open_editor">Open Editor</string>
+    <string name="welcome_message">Welcome to Code Editor</string>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:textColorPrimary">@color/colorTextPrimary</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+    </style>
+    <style name="Theme.CodeEditor" parent="AppTheme">
+        
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        
+        
+        <item name="android:windowBackground">@color/colorBackground</item>
+        
+        
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        
+        
+        <item name="android:textColorPrimary">@color/colorTextPrimary</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+    </style>
+</resources>

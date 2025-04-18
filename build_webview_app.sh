@@ -16,6 +16,9 @@ WEB_APP_DIR="web-app"
 OUTPUT_APK="webview-code-editor.apk"
 TMP_DIR=$(mktemp -d)
 
+# Автоматически исправлять APK после сборки
+FIX_APK=true
+
 # Инструкции по установке на устройство
 INSTALL_INSTRUCTIONS="
 Для установки APK на устройство:
@@ -308,12 +311,37 @@ if [ -f "${OUTPUT_APK}" ]; then
     cd ..
     rm -rf temp_apk_check
     
+    # Если нужно исправить APK
+    if [ "$FIX_APK" = true ] && [ -f "fix_apk.py" ]; then
+        echo -e "${BLUE}[+] Исправление APK с помощью fix_apk.py...${NC}"
+        # Создаем временное имя для исправленного APK
+        FIXED_APK="fixed-code-editor.apk"
+        python3 fix_apk.py "${OUTPUT_APK}"
+        
+        # Проверяем, создался ли исправленный APK
+        if [ -f "${FIXED_APK}" ]; then
+            # Копируем исправленный APK на место оригинального
+            cp "${FIXED_APK}" "${OUTPUT_APK}"
+            echo -e "${GREEN}[+] APK успешно исправлен и заменен!${NC}"
+            
+            # Обновляем размер для сообщения
+            APK_SIZE=$(du -h "${OUTPUT_APK}" | cut -f1)
+            echo -e "${GREEN}[+] Новый размер APK: ${APK_SIZE}${NC}"
+            
+            # Проверяем содержимое исправленного APK
+            echo -e "${BLUE}[+] Проверка содержимого исправленного APK:${NC}"
+            unzip -l "${OUTPUT_APK}" | head -15
+        else
+            echo -e "${RED}[!] Не удалось исправить APK, используется оригинальная версия${NC}"
+        fi
+    fi
+    
     # Отправляем в Telegram, если доступно
     if [ -n "$TELEGRAM_TOKEN" ] && [ -n "$TELEGRAM_TO" ]; then
         echo -e "${BLUE}[+] Отправка APK в Telegram...${NC}"
         
         # Генерируем сообщение
-        MESSAGE="✅ WebView Code Editor успешно собран!\n\nВерсия: 1.0\nРазмер: $APK_SIZE\n\n✓ Полноценная структура APK\n✓ Корректный DEX файл\n✓ Поддержка Android 5.0+"
+        MESSAGE="✅ Code Editor Pro успешно собран!\n\nВерсия: 1.0\nРазмер: $APK_SIZE\n\n✓ Полноценная структура APK\n✓ Корректный DEX файл\n✓ Оптимизировано для Android 5.0+"
         
         # Отправляем через Python-скрипт
         python3 ./send_to_telegram.py "${OUTPUT_APK}" --message "${MESSAGE}"

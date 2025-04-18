@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "com.example.codeeditor.app-mergeDebugResources-43:/layout/activity_editor.xml",
+        "source": "com.example.codeeditor.app-main-46:/layout/activity_editor.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-mergeDebugResources-43:/layout/tab_item.xml",
+        "source": "com.example.codeeditor.app-main-46:/layout/tab_item.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-mergeDebugResources-43:/layout/fragment_about.xml",
+        "source": "com.example.codeeditor.app-main-46:/layout/fragment_about.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-mergeDebugResources-43:/layout/activity_main.xml",
+        "source": "com.example.codeeditor.app-main-46:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-mergeDebugResources-43:/layout/fragment_settings.xml",
+        "source": "com.example.codeeditor.app-main-46:/layout/fragment_settings.xml"
+    }
+]

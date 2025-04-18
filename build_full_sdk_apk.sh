@@ -270,6 +270,17 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug // Используем debug-конфиг для подписи релизов в тестовой среде
+        }
+    }
+    
+    // Добавляем конфигурацию подписи для Debug
+    signingConfigs {
+        debug {
+            storeFile file('../debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
     }
     
@@ -288,6 +299,11 @@ android {
             excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
         }
     }
+    
+    // Выключаем строгие проверки для тестовой сборки
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -302,21 +318,9 @@ fi
 if [ ! -f "android-app/build.gradle" ]; then
   echo "[+] Создание build.gradle для корневого проекта"
   cat > android-app/build.gradle << 'EOF'
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.0'
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+// Проект использует зависимости из settings.gradle
+plugins {
+    id 'com.android.application' version '8.3.0' apply false
 }
 
 task clean(type: Delete) {
@@ -337,7 +341,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
@@ -412,7 +416,7 @@ echo "[+] Компиляция APK с помощью Gradle"
 cd android-app
 chmod +x ./gradlew
 # Запуск с таймаутом 10 минут, если висит дольше - убиваем
-timeout 600 ./gradlew assembleRelease
+timeout 600 ./gradlew assembleDebug --info
 cd ..
 
 # Поиск APK

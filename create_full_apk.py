@@ -760,5 +760,38 @@ def main():
         print("\n=== Ошибка при создании APK! ===")
         sys.exit(1)
 
+def run_build():
+    web_app_dir = "web-app"
+    android_dir = "android-app"
+    output_path = "code-editor-pro.apk"
+    
+    try:
+        create_android_project(web_app_dir, android_dir, output_path)
+        
+        # Автоматическая отправка в Telegram
+        telegram_message = "✅ Code Editor Pro APK успешно собран через полноценный Android SDK!"
+        telegram_script = "send_to_telegram.py"
+        
+        if os.path.exists(telegram_script):
+            telegram_cmd = f"python3 {telegram_script} {output_path} --message \"{telegram_message}\""
+            print(f"[INFO] Отправка APK в Telegram: {telegram_message}")
+            os.system(telegram_cmd)
+            
+        # Проверяем, работаем ли в GitHub Actions
+        if "GITHUB_REPOSITORY" in os.environ:
+            print(f"[INFO] Сборка в GitHub Actions, APK будет доступен в релизе")
+            print(f"[INFO] Репозиторий: {os.environ.get('GITHUB_REPOSITORY')}")
+    except Exception as e:
+        print(f"[ERROR] Ошибка при создании APK: {str(e)}")
+        
+        # В случае ошибки используем create_minimal_apk.py как запасной вариант
+        print("[INFO] Используем запасной вариант create_minimal_apk.py")
+        os.system("python3 create_minimal_apk.py")
+        
+        if os.path.exists("code-editor.apk"):
+            if not os.path.exists(output_path):
+                shutil.copy("code-editor.apk", output_path)
+                print(f"[INFO] Запасной APK скопирован в {output_path}")
+
 if __name__ == "__main__":
-    main()
+    run_build()

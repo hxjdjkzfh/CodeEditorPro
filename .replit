@@ -19,6 +19,10 @@ args = "Android App"
 task = "workflow.run"
 args = "Build App"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Push"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -45,7 +49,21 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "chmod +x build_android.sh && ./build_android.sh"
+args = "chmod +x build_android.sh && ./build_android.sh sdk"
+
+[[workflows.workflow]]
+name = "Build and Push"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./build_and_push.sh \"Полноценная сборка через Android SDK с автоматической отправкой в Telegram\""
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]

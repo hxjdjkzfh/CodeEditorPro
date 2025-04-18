@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/layout_activity_editor.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/layout/activity_editor.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/layout_fragment_about.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/layout/fragment_about.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/drawable_tab_background.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/drawable/tab_background.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/layout_tab_item.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/layout/tab_item.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/layout_fragment_settings.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/layout_activity_main.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/drawable_drawer_handle.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/drawable/drawer_handle.xml"
+    },
+    {
+        "merged": "com.example.codeeditor.app-debug-44:/drawable_tab_background_unsaved.xml.flat",
+        "source": "com.example.codeeditor.app-main-46:/drawable/tab_background_unsaved.xml"
+    }
+]

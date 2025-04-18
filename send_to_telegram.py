@@ -51,6 +51,26 @@ def send_to_telegram(file_path, message, token=None, chat_id=None):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     full_message = f"{message}\n\nВремя: {now}"
     
+    # Добавляем информацию о GitHub репозитории, если доступно
+    github_repo = os.environ.get("GITHUB_REPOSITORY")
+    github_run = os.environ.get("GITHUB_RUN_NUMBER")
+    github_sha = os.environ.get("GITHUB_SHA")
+    
+    if github_repo:
+        full_message += f"\n\nРепозиторий: {github_repo}"
+        
+    if github_run:
+        full_message += f"\nСборка: #{github_run}"
+        
+    if github_sha and len(github_sha) >= 7:
+        short_sha = github_sha[:7]
+        full_message += f"\nКоммит: {short_sha}"
+    
+    # Добавляем информацию о размере файла
+    if os.path.exists(file_path):
+        size_kb = os.path.getsize(file_path) / 1024
+        full_message += f"\n\nРазмер файла: {size_kb:.2f} KB"
+    
     # Отправляем файл
     try:
         print(f"[INFO] Отправка файла {file_path} в Telegram...")

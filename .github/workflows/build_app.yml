@@ -19,27 +19,39 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Build Android APK (WebView method)
-      run: |
-        chmod +x build_webview_app.sh
-        ./build_webview_app.sh
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
         
-    - name: Rename APK to look like full SDK version
+    - name: Make all scripts executable
       run: |
-        cp webview-code-editor.apk code-editor-pro.apk
+        chmod +x *.sh
+        chmod +x gradlew
+        find . -name "gradlew" -exec chmod +x {} \;
+        
+    - name: Build Android APK (Full SDK method)
+      run: |
+        ./build_android.sh sdk
+        
+    - name: Verify APK
+      run: |
+        ls -lah code-editor.apk
+        unzip -l code-editor.apk | head -20
         
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: code-editor-pro-apk
-        path: code-editor-pro.apk
+        name: code-editor-apk
+        path: code-editor.apk
         
     - name: Send APK to Telegram
       env:
         TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
         TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
       run: |
-        python3 send_to_telegram.py code-editor-pro.apk "✅ Code Editor Pro APK успешно собран! Полная версия приложения для Android."
+        python3 send_to_telegram.py code-editor.apk --message "✅ Code Editor Pro APK успешно собран! Оптимизированная версия приложения для Android с поддержкой веб-функциональности."
         
     - name: Create GitHub Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
@@ -48,7 +60,7 @@ jobs:
         name: Code Editor Pro - Latest Build
         tag_name: v1.0.${{ github.run_number }}
         files: |
-          code-editor-pro.apk
+          code-editor.apk
         body: |
           ## Code Editor Pro - Новая сборка
           

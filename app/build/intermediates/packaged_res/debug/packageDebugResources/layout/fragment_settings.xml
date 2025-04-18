@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/settings"
+            android:textAlignment="center"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Font Size Setting -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/font_size"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/font_size_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="28" />
+
+            <TextView
+                android:id="@+id/font_size_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="16sp"
+                tools:text="14" />
+
+        </LinearLayout>
+
+        <!-- Backup Interval Setting -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/backup_interval_minutes"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/backup_interval_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="59" />
+
+            <TextView
+                android:id="@+id/backup_interval_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="16sp"
+                tools:text="1" />
+
+        </LinearLayout>
+
+        <!-- Dark Theme Setting -->
+        <CheckBox
+            android:id="@+id/dark_theme_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/dark_theme"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Line Numbers Setting -->
+        <CheckBox
+            android:id="@+id/show_line_numbers_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_line_numbers"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Drawer Position Setting -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/drawer_position"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/drawer_position_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/position_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_bottom"
+                android:textColor="@color/colorTextPrimary" />
+
+            <RadioButton
+                android:id="@+id/position_left"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_left"
+                android:textColor="@color/colorTextPrimary" />
+
+            <RadioButton
+                android:id="@+id/position_right"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/position_right"
+                android:textColor="@color/colorTextPrimary" />
+
+        </RadioGroup>
+
+        <!-- Show Handle Setting -->
+        <CheckBox
+            android:id="@+id/show_handle_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_drawer_handle"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancel_settings_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="@color/colorSecondary"
+                android:text="@string/cancel"
+                android:textColor="@color/colorTextOnSecondary" />
+
+            <Button
+                android:id="@+id/save_settings_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:text="@string/save"
+                android:textColor="@color/colorTextOnAccent" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

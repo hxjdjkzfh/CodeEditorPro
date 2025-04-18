@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.codeeditor.app-mergeDebugResources-42:/values-v18/values-v18.xml",
+            "map": [
+                {
+                    "source": "/home/runner/.gradle/caches/transforms-4/f557c25b7aad5a59e1d8817050bd8a98/transformed/appcompat-1.6.1/res/values-v18/values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        }
+    ]
+}

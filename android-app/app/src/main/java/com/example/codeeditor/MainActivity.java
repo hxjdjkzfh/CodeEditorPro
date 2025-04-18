@@ -14,17 +14,20 @@ import android.net.Uri;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.widget.Toast;
-import androidx.webkit.WebSettingsCompat;
-import androidx.webkit.WebViewFeature;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private SharedPreferences prefs;
+    private static final String PREFS_NAME = "CodeEditorPrefs";
+    private static final String LAST_FILE_KEY = "LastOpenedFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Set fullscreen
+        // Устанавливаем полноэкранный режим
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -32,34 +35,36 @@ public class MainActivity extends Activity {
         );
         
         setContentView(R.layout.activity_main);
+        
+        // Инициализируем SharedPreferences для сохранения состояния
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        // Initialize WebView
+        // Инициализируем WebView
         webView = findViewById(R.id.webview);
         WebSettings webSettings = webView.getSettings();
         
-        // Enable JavaScript and DOM storage
+        // Включаем JavaScript и DOM storage
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setAllowFileAccess(true);
         
-        // Modern caching mode
+        // Устанавливаем кэширование
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
-        // Enable modern web features if available
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            webSettings.setSafeBrowsingEnabled(true);
-        }
-        
-        // Dark mode support if available
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(webSettings, WebSettingsCompat.FORCE_DARK_ON);
-        }
-        
-        // Enhanced webview client with error handling
+        // Настраиваем WebViewClient
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(android.webkit.WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Page loaded successfully
+                // Страница загружена успешно
+                String lastFile = prefs.getString(LAST_FILE_KEY, "");
+                if (!lastFile.isEmpty()) {
+                    // Открываем последний файл через JavaScript
+                    webView.evaluateJavascript(
+                        "if(typeof switchToFile === 'function') { switchToFile('" + lastFile + "'); }",
+                        null
+                    );
+                }
             }
             
             @Override
@@ -67,9 +72,7 @@ public class MainActivity extends Activity {
             public void onReceivedError(android.webkit.WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 if (request.isForMainFrame()) {
-                    // Handle main frame errors
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        // Modern error reporting
                         String errorMessage = "Error: " + error.getDescription();
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                     }
@@ -78,19 +81,18 @@ public class MainActivity extends Activity {
             
             @Override
             public boolean shouldOverrideUrlLoading(android.webkit.WebView view, WebResourceRequest request) {
-                // Handle local file links internally
                 Uri uri = request.getUrl();
                 if (uri.getScheme().equals("file")) {
-                    return false; // Let WebView handle local files
+                    return false; // Позволяем WebView обрабатывать локальные файлы
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
         });
         
-        // Chrome client for JavaScript dialogs and features
+        // Настраиваем WebChromeClient для диалогов JavaScript
         webView.setWebChromeClient(new WebChromeClient());
         
-        // Load the app
+        // Загружаем приложение
         webView.loadUrl("file:///android_asset/index.html");
     }
 
@@ -99,13 +101,7 @@ public class MainActivity extends Activity {
         if (webView.canGoBack()) {
             webView.goBack();
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                this.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, () -> {
-                    finish();
-                });
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
     
@@ -113,6 +109,17 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         webView.onPause();
+        
+        // Сохраняем текущий открытый файл
+        webView.evaluateJavascript(
+            "if(typeof getCurrentFileName === 'function') { getCurrentFileName(); } else { '' }",
+            value -> {
+                String fileName = value;
+                if (fileName != null && !fileName.equals("null") && !fileName.isEmpty()) {
+                    prefs.edit().putString(LAST_FILE_KEY, fileName).apply();
+                }
+            }
+        );
     }
     
     @Override

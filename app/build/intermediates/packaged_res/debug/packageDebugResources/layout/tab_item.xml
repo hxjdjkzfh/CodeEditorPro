@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tab_card_view"
+    android:layout_width="wrap_content"
+    android:layout_height="36dp"
+    android:layout_marginStart="1dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="1dp"
+    android:layout_marginBottom="0dp"
+    app:cardBackgroundColor="@color/tabBackground"
+    app:cardCornerRadius="8dp"
+    app:cardCornerRadiusBottomEnd="0dp"
+    app:cardCornerRadiusBottomStart="0dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Tab content -->
+        <TextView
+            android:id="@+id/tab_name_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:minWidth="80dp"
+            android:maxWidth="120dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:paddingEnd="6dp"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="14sp"
+            tools:text="filename.txt" />
+
+        <!-- Close button -->
+        <ImageView
+            android:id="@+id/tab_close_button"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:tint="@color/colorTextPrimary"
+            android:contentDescription="Close tab" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
