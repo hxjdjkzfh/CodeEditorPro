@@ -31,9 +31,10 @@ WEB_APP_DIR="web-app"
 ANDROID_APP_DIR="android-webview-app"
 OUTPUT_APK="./code-editor.apk"
 
-# Сборка минимального APK из веб-приложения
-echo -e "${BLUE}[+] Запуск сборки WebView APK...${NC}"
-python3 create_minimal_apk.py "$WEB_APP_DIR" "$ANDROID_APP_DIR" "$OUTPUT_APK"
+# Сборка полноценного APK через Gradle
+echo -e "${BLUE}[+] Запуск сборки полноценного Android APK через Gradle...${NC}"
+chmod +x create_full_apk.py
+python3 create_full_apk.py "$WEB_APP_DIR" "$ANDROID_APP_DIR" "$OUTPUT_APK"
 
 # Проверяем, успешно ли создан APK
 if [ $? -eq 0 ] && [ -f "$OUTPUT_APK" ]; then

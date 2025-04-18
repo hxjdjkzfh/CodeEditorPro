@@ -1,4 +1,4 @@
-modules = ["kotlin", "java-17", "python-3.10"]
+modules = ["kotlin", "java-17", "python-3.11"]
 
 [nix]
 channel = "stable-24_05"
@@ -45,7 +45,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python create_minimal_apk.py web-app android-webview-app ./code-editor.apk"
+args = "python3 create_full_apk.py web-app android-webview-app ./code-editor.apk"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]

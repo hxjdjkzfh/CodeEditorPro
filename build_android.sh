@@ -1,35 +1,24 @@
 #!/bin/bash
 #
 # Основной скрипт для сборки Android-приложения
-# Может использовать различные подходы в зависимости от доступного окружения
+# Использует полноценную сборку через Gradle
 
 # Делаем скрипты исполняемыми
-chmod +x create_minimal_apk.sh
-chmod +x create_minimal_apk.py
 chmod +x build_real_android_app.sh
 chmod +x build_webview_app.sh
 
-# Проверяем, какой метод сборки доступен
-if command -v ./gradlew &> /dev/null; then
-    echo "=== Using Gradle build system ==="
-    # Используем стандартный процесс сборки с Gradle
-    chmod +x gradlew
-    ./gradlew assembleDebug
-elif command -v gradle &> /dev/null; then
-    echo "=== Using Real Android App builder ==="
-    # Используем наш скрипт для сборки полноценного Android-приложения
-    ./build_real_android_app.sh
-else
-    echo "=== Using WebView APK generator ==="
-    # Используем наш собственный генератор WebView APK
-    ./build_webview_app.sh
-    
-    # Если и это не сработало, используем минимальный генератор
-    if [ ! -s ./code-editor.apk ]; then
-        echo "=== Falling back to minimal APK generator ==="
-        ./create_minimal_apk.sh
-    fi
+# Устанавливаем дополнительные зависимости, если необходимо
+echo "=== Checking Android SDK and build tools ==="
+if [ ! -f "local.properties" ]; then
+    echo "Creating local.properties file..."
+    echo "sdk.dir=$ANDROID_HOME" > local.properties
 fi
+
+# Запускаем сборку с использованием Gradle
+echo "=== Using Gradle build system ==="
+# Делаем gradlew исполняемым и запускаем сборку
+chmod +x gradlew
+./gradlew assembleDebug
 
 # Проверяем результат
 if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then

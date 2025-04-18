@@ -1,79 +1,22 @@
 #!/bin/bash
 #
 # Скрипт для создания полноценного WebView Android приложения
-# с использованием существующей инфраструктуры GitHub Actions
+# с использованием Gradle
 
 set -e
 
-echo "=== Starting WebView APK build ==="
-echo "Creating a real Android application, not just a dummy APK"
+echo "=== Starting WebView APK build using Gradle ==="
 
-# Определяем основные директории
-BASE_DIR=$(pwd)
-WEBVIEW_DIR="$BASE_DIR/android-webview-app"
-BUILD_DIR="$BASE_DIR/build/webview_app"
-OUTPUT_DIR="$BASE_DIR/build/outputs/apk/debug"
-OUTPUT_APK="$OUTPUT_DIR/app-debug.apk"
-FINAL_APK="$BASE_DIR/code-editor.apk"
+# Делаем скрипт сборки исполняемым
+chmod +x create_full_apk.py
 
-# Создаем директории для сборки
-mkdir -p "$BUILD_DIR"
-mkdir -p "$OUTPUT_DIR"
-
-# Копируем assets из web-app в android-webview-app/assets
-echo "Copying web assets..."
-mkdir -p "$WEBVIEW_DIR/assets"
-cp -r "$BASE_DIR/web-app/"* "$WEBVIEW_DIR/assets/"
-
-# Компилируем Java файлы
-echo "Compiling Java sources..."
-mkdir -p "$BUILD_DIR/classes"
-find "$WEBVIEW_DIR/src/main/java" -name "*.java" | xargs javac -d "$BUILD_DIR/classes" -classpath "$ANDROID_HOME/platforms/android-30/android.jar" || {
-    echo "Failed to compile Java files. Creating minimal APK instead."
-    dd if=/dev/urandom of="$FINAL_APK" bs=1024 count=64
-    echo "Created dummy APK file of size: $(du -h "$FINAL_APK" | cut -f1)"
-    exit 0
-}
-
-# Создаем dex файл
-echo "Creating DEX file..."
-mkdir -p "$BUILD_DIR/dex"
-dx --dex --output="$BUILD_DIR/dex/classes.dex" "$BUILD_DIR/classes" || {
-    echo "Failed to create DEX file. Using fallback method."
-    dd if=/dev/urandom of="$BUILD_DIR/dex/classes.dex" bs=1024 count=20
-}
-
-# Создаем структуру для APK
-echo "Creating APK structure..."
-mkdir -p "$BUILD_DIR/apk"
-cp -r "$WEBVIEW_DIR/assets" "$BUILD_DIR/apk/"
-mkdir -p "$BUILD_DIR/apk/META-INF"
-cp -r "$WEBVIEW_DIR/src/main/res" "$BUILD_DIR/apk/"
-cp "$BUILD_DIR/dex/classes.dex" "$BUILD_DIR/apk/"
-cp "$WEBVIEW_DIR/src/main/AndroidManifest.xml" "$BUILD_DIR/apk/"
-
-# Создаем META-INF файлы
-echo "Creating META-INF files..."
-cat > "$BUILD_DIR/apk/META-INF/MANIFEST.MF" << EOF
-Manifest-Version: 1.0
-Created-By: Code Editor Generator
-EOF
-
-# Создаем APK файл
-echo "Creating APK file..."
-cd "$BUILD_DIR/apk"
-zip -r "$OUTPUT_APK" * >/dev/null || {
-    echo "Failed to create ZIP file. Using fallback method."
-    dd if=/dev/urandom of="$OUTPUT_APK" bs=1024 count=100
-}
-cd "$BASE_DIR"
+# Запускаем Python-скрипт для создания APK через Gradle
+python3 create_full_apk.py web-app android-webview-app ./code-editor.apk
 
 # Проверяем результат
-if [ -s "$OUTPUT_APK" ]; then
-    echo "APK created successfully: $OUTPUT_APK"
-    cp "$OUTPUT_APK" "$FINAL_APK"
-    echo "APK copied to: $FINAL_APK"
-    echo "APK size: $(du -h "$FINAL_APK" | cut -f1)"
+if [ -f "./code-editor.apk" ]; then
+    echo "APK created successfully: ./code-editor.apk"
+    echo "APK size: $(du -h ./code-editor.apk | cut -f1)"
     
     # Создаем ссылку для скачивания, если мы в GitHub
     if [ -n "$GITHUB_SERVER_URL" ] && [ -n "$GITHUB_REPOSITORY" ]; then
@@ -94,14 +37,12 @@ if [ -s "$OUTPUT_APK" ]; then
     
     # Копируем в директорию загрузок, если она существует
     if [ -d "/download" ]; then
-        cp "$FINAL_APK" "/download/code-editor.apk"
+        cp "./code-editor.apk" "/download/code-editor.apk"
         echo "✓ APK также доступен для скачивания в директории /download"
     fi
 else
-    echo "Failed to create regular APK, creating fallback file..."
-    dd if=/dev/urandom of="$FINAL_APK" bs=1024 count=100
-    echo "Created fallback APK file: $FINAL_APK"
-    echo "Fallback APK size: $(du -h "$FINAL_APK" | cut -f1)"
+    echo "Failed to create APK file!"
+    exit 1
 fi
 
 echo "=== WebView APK build completed ==="
