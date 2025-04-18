@@ -1,13 +1,42 @@
 # Инструкции по сборке приложения Code Editor
 
-## Вариант 1: Сборка с помощью онлайн компилятора
+## Вариант 1: Использование готовых скриптов сборки в репозитории
+
+В репозитории есть несколько готовых скриптов для создания APK-файла:
+
+1. **build_android.sh** - основной скрипт, который автоматически выбирает подходящий метод сборки в зависимости от окружения:
+   ```bash
+   chmod +x build_android.sh
+   ./build_android.sh
+   ```
+
+2. **build_webview_app.sh** - создает WebView-приложение с вашим веб-контентом:
+   ```bash
+   chmod +x build_webview_app.sh
+   ./build_webview_app.sh
+   ```
+
+3. **build_real_android_app.sh** - создает полноценное Android-приложение с WebView:
+   ```bash
+   chmod +x build_real_android_app.sh
+   ./build_real_android_app.sh
+   ```
+
+4. **create_minimal_apk.py** - генерирует минимальный валидный APK при отсутствии других возможностей:
+   ```bash
+   python create_minimal_apk.py
+   ```
+
+После выполнения любого из этих скриптов, файл APK будет создан как `code-editor.apk` в корневой директории проекта.
+
+## Вариант 2: Сборка с помощью онлайн компилятора
 
 1. Загрузите ZIP-архив `code-editor-web.zip` из этого проекта.
 2. Посетите [AppCreator24](https://appcreator24.com/app/) или другой онлайн-сервис для создания WebView приложений.
 3. Загрузите архив с веб-приложением и настройте базовые параметры (имя приложения, иконка).
 4. Экспортируйте APK-файл.
 
-## Вариант 2: Сборка с помощью Android Studio
+## Вариант 3: Сборка с помощью Android Studio
 
 1. Установите [Android Studio](https://developer.android.com/studio).
 2. Создайте новый проект с пустой активностью (Empty Activity).
@@ -15,11 +44,20 @@
 4. Скопируйте содержимое директории `web-app` в каталог `app/src/main/assets/` вашего проекта.
 5. Соберите приложение, выбрав Build > Build Bundle(s) / APK(s) > Build APK(s).
 
-## Вариант 3: Использование сервиса GitHub Actions
+## Вариант 4: Использование сервиса GitHub Actions
 
-1. Создайте репозиторий на GitHub.
-2. Загрузите файлы проекта в репозиторий.
-3. Создайте файл `.github/workflows/android.yml` со следующим содержимым:
+В репозитории уже настроены GitHub Actions Workflows для автоматической сборки APK:
+
+1. **.github/workflows/android.yml** - стандартная сборка Android приложения
+2. **.github/workflows/build_webview.yml** - сборка WebView приложения
+
+Для использования:
+1. Клонируйте репозиторий на GitHub.
+2. Перейдите в раздел Actions.
+3. Выберите нужный workflow и запустите его вручную или дождитесь автоматического запуска при внесении изменений.
+4. Скачайте готовый APK из раздела Artifacts.
+
+Пример workflow для вашего репозитория:
 
 ```yaml
 name: Android CI
@@ -54,8 +92,6 @@ jobs:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
 ```
-
-4. Запустите GitHub Action и загрузите готовый APK-файл.
 
 ## Описание функциональности приложения
 
