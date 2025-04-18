@@ -1,6 +1,6 @@
 # Code Editor Pro
 
-Мобильный редактор кода для Android с возможностью создания и редактирования программ прямо на вашем смартфоне.
+Профессиональный редактор кода для Android с поддержкой множества языков программирования.
 
 ## Особенности
 
@@ -14,9 +14,9 @@
 
 ## Скачать
 
-### Последняя версия (28MB)
+### Последняя версия
 
-✅ [Скачать APK (28MB)](https://github.com/hxjdjkzfh/CodeEditorPro/releases/latest/download/code-editor-full.apk)
+✅ [Скачать APK](https://github.com/hxjdjkzfh/CodeEditorPro/releases/latest/download/code-editor.apk)
 
 ## Инструкции по установке
 
