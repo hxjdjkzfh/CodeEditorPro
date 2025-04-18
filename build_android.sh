@@ -1,82 +1,115 @@
 #!/bin/bash
 #
 # Основной скрипт для сборки Android-приложения
-# Использует полноценную сборку через Gradle
+# Выбирает оптимальный метод сборки для корректного APK
+# 
+# Режимы:
+# - webview: использует улучшенный метод WebView для создания легкого APK (по умолчанию)
+# - sdk: пытается использовать полный Android SDK
+# - auto: пробует оба варианта (сначала webview, затем sdk)
+#
+# Использование: 
+#   ./build_android.sh [режим]
+#   Например: ./build_android.sh sdk 
 
-# Делаем скрипты исполняемыми
-chmod +x build_real_android_app.sh
-chmod +x build_webview_app.sh
+# Устанавливаем переменные цвета для вывода
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-# Устанавливаем дополнительные зависимости, если необходимо
-echo "=== Checking Android SDK and build tools ==="
-if [ ! -f "local.properties" ]; then
-    echo "Creating local.properties file..."
-    echo "sdk.dir=$ANDROID_HOME" > local.properties
+echo -e "${BLUE}========== ✅ Сборка Android APK ===========${NC}"
+
+# Указываем пути по умолчанию
+WEB_APP_DIR="web-app"
+ANDROID_APP_DIR="android-webview-app"
+OUTPUT_APK="./code-editor.apk"
+
+# Определяем режим работы
+BUILD_MODE="webview"  # По умолчанию используем WebView
+
+if [ "$1" == "sdk" ]; then
+    BUILD_MODE="sdk"
+    echo -e "${YELLOW}[+] Выбран режим полной сборки через Android SDK${NC}"
+elif [ "$1" == "auto" ]; then
+    BUILD_MODE="auto"
+    echo -e "${YELLOW}[+] Выбран автоматический режим (попытка использовать оба метода)${NC}"
+elif [ "$1" == "webview" ] || [ -z "$1" ]; then
+    BUILD_MODE="webview"
+    echo -e "${YELLOW}[+] Выбран режим сборки через WebView${NC}"
+else
+    echo -e "${RED}[!] Неизвестный режим: $1. Используется WebView режим по умолчанию${NC}"
+    BUILD_MODE="webview"
 fi
 
-# Запускаем сборку с использованием Gradle
-echo "=== Using Gradle build system ==="
-# Делаем gradlew исполняемым и запускаем сборку
-chmod +x gradlew
-./gradlew assembleDebug
-
-# Проверяем результат
-if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
-    echo "✓ APK created successfully!"
-    echo "  Size: $(du -h app/build/outputs/apk/debug/app-debug.apk | cut -f1)"
-    echo "  Path: app/build/outputs/apk/debug/app-debug.apk"
+# Функция для сборки через WebView
+build_webview() {
+    echo -e "${BLUE}[+] Запуск улучшенного метода сборки APK через WebView...${NC}"
+    chmod +x build_webview_app.sh
+    ./build_webview_app.sh
     
-    # Создаем копию для удобства
-    cp app/build/outputs/apk/debug/app-debug.apk ./code-editor.apk
-    # Проверяем, не пустой ли файл
-    if [ ! -s ./code-editor.apk ]; then
-        echo "! Warning: Empty APK file detected, creating valid APK with Python script..."
-        
-        # Используем Python скрипт для создания полноценного APK
-        python3 create_minimal_apk.py web-app android-webview-app ./code-editor.apk
-        
-        # Проверяем, сработало ли
-        if [ ! -s ./code-editor.apk ]; then
-            echo "! Python script failed, trying alternative method..."
-            
-            # Создаем APK с помощью zip вручную
-            mkdir -p temp_apk/META-INF temp_apk/assets
-            
-            # Копируем веб-приложение
-            cp -r web-app/* temp_apk/assets/ 2>/dev/null
-            
-            # Создаем AndroidManifest.xml
-            cat > temp_apk/AndroidManifest.xml << 'EOF'
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.codeeditor"
-    android:versionCode="1"
-    android:versionName="1.0">
-    <application android:label="Code Editor">
-        <activity android:name=".MainActivity" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
-EOF
-            
-            # Создаем META-INF файлы
-            echo "Manifest-Version: 1.0" > temp_apk/META-INF/MANIFEST.MF
-            echo "Created-By: Code Editor Generator" >> temp_apk/META-INF/MANIFEST.MF
-            
-            # Создаем package.zip и переименовываем в apk
-            cd temp_apk
-            zip -r ../code-editor.apk * >/dev/null
-            cd ..
-            
-            # Удаляем временную директорию
-            rm -rf temp_apk
-        fi
+    # Копируем APK в стандартный выходной файл
+    if [ -f "webview-code-editor.apk" ]; then
+        cp webview-code-editor.apk "$OUTPUT_APK"
+        echo -e "${GREEN}[+] APK скопирован в стандартный путь: $OUTPUT_APK${NC}"
+        return 0
+    else
+        echo -e "${RED}[!] Не удалось создать WebView APK${NC}"
+        return 1
     fi
-    echo "✓ APK copied to ./code-editor.apk with size $(du -h ./code-editor.apk | cut -f1)"
+}
+
+# Функция для сборки через Android SDK
+build_sdk() {
+    echo -e "${BLUE}[+] Запуск метода сборки через Android SDK...${NC}"
+    chmod +x create_full_apk.py
+    python3 create_full_apk.py "$WEB_APP_DIR" "$ANDROID_APP_DIR" "$OUTPUT_APK"
+    
+    if [ -f "$OUTPUT_APK" ]; then
+        echo -e "${GREEN}[+] APK успешно собран через Android SDK${NC}"
+        return 0
+    else
+        echo -e "${RED}[!] Не удалось создать APK через Android SDK${NC}"
+        return 1
+    fi
+}
+
+# Запускаем сборку в зависимости от выбранного режима
+if [ "$BUILD_MODE" == "webview" ]; then
+    build_webview
+    RESULT=$?
+elif [ "$BUILD_MODE" == "sdk" ]; then
+    build_sdk
+    RESULT=$?
+else 
+    # Автоматический режим - пробуем оба варианта
+    echo -e "${BLUE}[+] Автоматический режим: сначала попробуем WebView...${NC}"
+    build_webview
+    RESULT=$?
+    
+    # Если WebView не сработал, пробуем SDK
+    if [ $RESULT -ne 0 ]; then
+        echo -e "${YELLOW}[!] WebView метод не сработал, переключаемся на полный SDK...${NC}"
+        build_sdk
+        RESULT=$?
+    fi
+fi
+
+# Проверяем, успешно ли создан APK
+if [ $? -eq 0 ] && [ -f "$OUTPUT_APK" ]; then
+    echo -e "${GREEN}[+] APK успешно создан: $OUTPUT_APK${NC}"
+    APK_SIZE=$(du -h "$OUTPUT_APK" | cut -f1)
+    echo -e "${GREEN}[+] Размер файла: $APK_SIZE${NC}"
+    
+    # Проверяем содержимое APK
+    echo -e "${BLUE}[+] Проверка содержимого APK...${NC}"
+    unzip -l "$OUTPUT_APK" | grep -q "classes.dex"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}[+] APK содержит корректный DEX файл${NC}"
+    else
+        echo -e "${RED}[!] APK не содержит корректный DEX файл, возможно он не будет работать${NC}"
+    fi
     
     # Получаем прямую ссылку на APK в GitHub, если доступно
     if [ -n "$GITHUB_SERVER_URL" ] && [ -n "$GITHUB_REPOSITORY" ]; then
@@ -108,7 +141,10 @@ EOF
         echo ""
         echo "✓ APK также доступен для скачивания в директории /download"
     fi
+    
+    exit 0
 else
-    echo "✗ Failed to build APK!"
+    echo -e "${RED}[ERROR] Не удалось создать APK файл!${NC}"
+    echo -e "${RED}==========================================================${NC}"
     exit 1
 fi
