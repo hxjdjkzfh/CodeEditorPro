@@ -28,6 +28,7 @@ class TabAdapter(
     inner class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tabCard: CardView = itemView.findViewById(R.id.tab_card_view)
         val tabName: TextView = itemView.findViewById(R.id.tab_name_text)
+        val closeButton: ImageView = itemView.findViewById(R.id.tab_close_button)
         
         init {
             // Normal click listener for tab selection
@@ -39,17 +40,23 @@ class TabAdapter(
                 }
             }
             
-            // Long press listener for tab closing with animation
+            // Close button click listener
+            closeButton.setOnClickListener { 
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    // Анимация удаления вкладки
+                    dragDropManager?.animateTabDeletion(itemView) {
+                        onTabClosed(position)
+                    }
+                }
+            }
+            
+            // Long press listener for tab dragging
             itemView.setOnLongClickListener { view ->
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    // Only close if we are not in drag mode
-                    if (!isDragging) {
-                        // Animate tab removal
-                        dragDropManager?.animateTabDeletion(view) {
-                            onTabClosed(position)
-                        }
-                    }
+                    // Начинаем перетаскивание вкладки
+                    dragDropManager?.startDrag(view)
                 }
                 true
             }

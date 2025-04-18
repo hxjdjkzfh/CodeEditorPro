@@ -37,44 +37,55 @@ class DragDropManager(private val container: ViewGroup) {
      */
     fun makeViewDraggable(view: View, fileTab: FileTab, position: Int) {
         view.tag = position // Store the position in the view's tag
+    }
+    
+    /**
+     * Programmatically start drag operation on a view
+     */
+    fun startDrag(view: View) {
+        val position = view.tag as? Int ?: return
+        val fileTab = view.parent?.let { parent ->
+            if (parent is ViewGroup) {
+                val index = parent.indexOfChild(view)
+                if (index != -1 && container.adapter is TabAdapter) {
+                    val adapter = container.adapter as TabAdapter
+                    adapter.getItemAt(position)
+                } else null
+            } else null
+        } ?: return
         
-        // Set long click listener to start drag
-        view.setOnLongClickListener { v ->
-            // Start drag operation
-            val item = ClipData.Item(position.toString())
-            val dragData = ClipData(
-                DRAG_TAG_FILE,
-                arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-                item
+        // Start drag operation
+        val item = ClipData.Item(position.toString())
+        val dragData = ClipData(
+            DRAG_TAG_FILE,
+            arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+            item
+        )
+        
+        // Apply animation for drag start
+        AnimationUtils.startDragAnimation(view)
+        
+        // Start the drag
+        val shadowBuilder = View.DragShadowBuilder(view)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            view.startDragAndDrop(
+                dragData,
+                shadowBuilder,
+                fileTab, // The data to be dragged
+                0
             )
-            
-            // Apply animation for drag start
-            AnimationUtils.startDragAnimation(v)
-            
-            // Start the drag
-            val shadowBuilder = View.DragShadowBuilder(v)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                v.startDragAndDrop(
-                    dragData,
-                    shadowBuilder,
-                    fileTab, // The data to be dragged
-                    0
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                v.startDrag(
-                    dragData,
-                    shadowBuilder,
-                    fileTab, // The data to be dragged
-                    0
-                )
-            }
-            
-            // Notify listener
-            listener?.onDragStarted(fileTab, v)
-            
-            true // Consumed the long click
+        } else {
+            @Suppress("DEPRECATION")
+            view.startDrag(
+                dragData,
+                shadowBuilder,
+                fileTab, // The data to be dragged
+                0
+            )
         }
+        
+        // Notify listener
+        listener?.onDragStarted(fileTab, view)
     }
     
     /**

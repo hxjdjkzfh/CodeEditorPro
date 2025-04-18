@@ -107,10 +107,19 @@ class EditorActivity : AppCompatActivity(), SettingsFragment.SettingsChangeListe
         // Initialize syntax highlighter
         syntaxHighlighter = SyntaxHighlighter(codeEditor)
         
-        // Initialize tab adapter
-        tabAdapter = TabAdapter(tabs) { position ->
-            changeTab(position)
-        }
+        // Initialize tab adapter with selection, closing and movement callbacks
+        tabAdapter = TabAdapter(
+            tabs = tabs,
+            onTabSelected = { position ->
+                changeTab(position)
+            },
+            onTabClosed = { position ->
+                closeTab(position)
+            },
+            onTabMoved = { fromPosition, toPosition ->
+                // Tab moved - no special handling needed as the adapter updates internally
+            }
+        )
         tabsRecyclerView.adapter = tabAdapter
         
         // Initialize backup manager
@@ -270,6 +279,62 @@ class EditorActivity : AppCompatActivity(), SettingsFragment.SettingsChangeListe
             tabs[currentTabIndex]
         } else {
             null
+        }
+    }
+    
+    private fun closeTab(position: Int) {
+        if (position < 0 || position >= tabs.size) return
+        
+        val tab = tabs[position]
+        
+        // Спрашиваем подтверждение только если вкладка не сохранена
+        if (tab.isUnsaved) {
+            AlertDialog.Builder(this)
+                .setTitle("Unsaved Changes")
+                .setMessage("Save changes to ${tab.name} before closing?")
+                .setPositiveButton("Save") { _, _ ->
+                    // Сначала переключаемся на эту вкладку
+                    changeTab(position)
+                    // Сохраняем и закрываем
+                    if (tab.file != null || tab.uri != null) {
+                        saveCurrentFile()
+                        removeTab(position)
+                    } else {
+                        saveFileAs()
+                        // Вкладка будет закрыта после сохранения
+                    }
+                }
+                .setNegativeButton("Don't Save") { _, _ ->
+                    removeTab(position)
+                }
+                .setNeutralButton("Cancel", null)
+                .show()
+        } else {
+            removeTab(position)
+        }
+    }
+    
+    private fun removeTab(position: Int) {
+        if (position < 0 || position >= tabs.size) return
+        
+        // Сохраняем текущую позицию, чтобы восстановить после удаления
+        val wasCurrentTab = position == currentTabIndex
+        
+        // Удаляем вкладку
+        tabs.removeAt(position)
+        tabAdapter.notifyItemRemoved(position)
+        
+        // Обновляем текущую вкладку
+        if (tabs.isEmpty()) {
+            // Если не осталось вкладок, создаем новую
+            createNewTab()
+        } else if (wasCurrentTab) {
+            // Если удалили текущую вкладку, переключаемся на соседнюю
+            val newPos = if (position >= tabs.size) tabs.size - 1 else position
+            changeTab(newPos)
+        } else if (position < currentTabIndex) {
+            // Если удалили вкладку слева от текущей, нужно обновить индекс
+            currentTabIndex--
         }
     }
     

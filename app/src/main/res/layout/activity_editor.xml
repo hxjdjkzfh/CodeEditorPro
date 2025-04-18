@@ -37,14 +37,23 @@
             android:id="@+id/drawer_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom">
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
 
-            <!-- Drawer handle -->
-            <View
-                android:id="@+id/drawer_handle"
+            <!-- Drawer handle (хвостик) - теперь выглядит как потянутая ручка -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@drawable/drawer_handle" />
+                android:layout_height="16dp"
+                android:background="@color/colorSurface"
+                android:paddingTop="6dp">
+                
+                <View
+                    android:id="@+id/drawer_handle"
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/drawer_handle" />
+            </FrameLayout>
 
             <!-- Drawer layout -->
             <LinearLayout
@@ -53,58 +62,88 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorSurface"
                 android:orientation="horizontal"
-                android:padding="8dp">
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp"
+                android:elevation="8dp">
 
-                <ImageButton
-                    android:id="@+id/open_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/open_file"
-                    android:src="@android:drawable/ic_menu_upload"
-                    android:tint="@color/colorAccent" />
+                <!-- Группа кнопок файловых операций -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/colorBackground"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:elevation="2dp">
 
-                <ImageButton
-                    android:id="@+id/save_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/save_file"
-                    android:src="@android:drawable/ic_menu_save"
-                    android:tint="@color/colorAccent" />
-
-                <ImageButton
-                    android:id="@+id/save_as_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/save_as"
-                    android:src="@android:drawable/ic_menu_save"
-                    android:tint="@color/colorAccent" />
+                    <ImageButton
+                        android:id="@+id/open_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/open_file"
+                        android:src="@android:drawable/ic_menu_upload"
+                        android:tint="@color/colorAccent" />
+    
+                    <ImageButton
+                        android:id="@+id/save_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/save_file"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:tint="@color/colorAccent" />
+    
+                    <ImageButton
+                        android:id="@+id/save_as_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/save_as"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:tint="@color/colorAccent" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    android:id="@+id/settings_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/settings"
-                    android:src="@android:drawable/ic_menu_preferences"
-                    android:tint="@color/colorAccent" />
-
-                <ImageButton
-                    android:id="@+id/about_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/about"
-                    android:src="@android:drawable/ic_menu_info_details"
-                    android:tint="@color/colorAccent" />
-
+                <!-- Группа кнопок настроек -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/colorBackground"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:elevation="2dp">
+                    
+                    <ImageButton
+                        android:id="@+id/settings_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/settings"
+                        android:src="@android:drawable/ic_menu_preferences"
+                        android:tint="@color/colorAccent" />
+    
+                    <ImageButton
+                        android:id="@+id/about_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/about"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:tint="@color/colorAccent" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
