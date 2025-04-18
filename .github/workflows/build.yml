@@ -42,12 +42,11 @@ jobs:
         chmod +x create_minimal_apk.sh
         ./create_minimal_apk.sh
     
-    # Upload the built APK
-    - name: Upload APK as Artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: code-editor-app
-        path: code-editor.apk
+    # Copy APK to artifacts directory for later use
+    - name: Copy APK to artifact directory
+      run: |
+        mkdir -p artifacts
+        cp code-editor.apk artifacts/code-editor-minimal.apk
         
     # Create a GitHub Release when tags are pushed
     - name: Create Release
