@@ -1,30 +1,52 @@
 #!/bin/bash
-# Скрипт для сборки полноценного Android APK с использованием Android SDK
-# Без использования WebView-метода
-# Copyright 2025 Code Editor Pro Team
+# Скрипт для сборки полноценного APK только через Android SDK
 
-set -e  # Остановка при ошибках
+# Цвета для вывода
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-echo "========== ✅ Сборка полноценного Android APK ==========="
+# Выходной путь
+OUTPUT_APK="code-editor.apk"
 
-# Создаем структуру Android-проекта
-echo "[+] Подготовка Android-проекта"
+echo -e "${BLUE}========== ✅ Сборка полноценного Android APK через SDK ===========${NC}"
 
-# Создаем необходимые директории
+# 1. Создание базовой структуры Android-проекта
+echo -e "${BLUE}[+] Создание структуры Android-проекта...${NC}"
+mkdir -p android-app/app/src/main/assets
 mkdir -p android-app/app/src/main/java/com/example/codeeditor
-mkdir -p android-app/app/src/main/res/layout 
+mkdir -p android-app/app/src/main/res/layout
 mkdir -p android-app/app/src/main/res/values
 mkdir -p android-app/app/src/main/res/drawable
-mkdir -p android-app/app/src/main/assets
 
-# Копируем веб-приложение в assets
-echo "[+] Копирование веб-приложения в проект"
+# 2. Копирование веб-приложения в assets
+echo -e "${BLUE}[+] Копирование веб-приложения в assets...${NC}"
 cp -r web-app/* android-app/app/src/main/assets/
 
-# Создаем файлы проекта, если они отсутствуют
-if [ ! -f "android-app/app/src/main/AndroidManifest.xml" ]; then
-  echo "[+] Создание AndroidManifest.xml"
-  cat > android-app/app/src/main/AndroidManifest.xml << 'EOF'
+# 3. Создание ресурсов приложения
+echo -e "${BLUE}[+] Создание ресурсов и файлов приложения...${NC}"
+
+# Иконка приложения
+cat > android-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <path
+      android:fillColor="#007ACC"
+      android:pathData="M54,108C83.82,108 108,83.82 108,54C108,24.18 83.82,0 54,0C24.18,0 0,24.18 0,54C0,83.82 24.18,108 54,108Z"/>
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M32,32L76,32L76,76L32,76L32,32ZM38,38L38,70L70,70L70,38L38,38ZM44,50L52,50L52,64L44,64L44,50ZM58,44L66,44L66,58L58,58L58,44Z"/>
+</vector>
+EOF
+
+# Манифест приложения
+cat > android-app/app/src/main/AndroidManifest.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.codeeditor">
@@ -48,30 +70,45 @@ if [ ! -f "android-app/app/src/main/AndroidManifest.xml" ]; then
 
 </manifest>
 EOF
-fi
 
-if [ ! -f "android-app/app/src/main/res/drawable/app_icon.xml" ]; then
-  echo "[+] Создание иконки приложения"
-  cat > android-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
+# Строковые ресурсы
+cat > android-app/app/src/main/res/values/strings.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-  <path
-      android:fillColor="#007ACC"
-      android:pathData="M54,108C83.82,108 108,83.82 108,54C108,24.18 83.82,0 54,0C24.18,0 0,24.18 0,54C0,83.82 24.18,108 54,108Z"/>
-  <path
-      android:fillColor="#FFFFFF"
-      android:pathData="M32,32L76,32L76,76L32,76L32,32ZM38,38L38,70L70,70L70,38L38,38ZM44,50L52,50L52,64L44,64L44,50ZM58,44L66,44L66,58L58,58L58,44Z"/>
-</vector>
+<resources>
+    <string name="app_name">Code Editor Pro</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="font_size">Font Size</string>
+    <string name="auto_save">Auto Save</string>
+    <string name="show_line_numbers">Show Line Numbers</string>
+    <string name="drawer_position">Drawer Position</string>
+    <string name="position_top">Top</string>
+    <string name="position_bottom">Bottom</string>
+    <string name="position_left">Left</string>
+    <string name="position_right">Right</string>
+    <string name="show_drawer_handle">Show Drawer Handle</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+</resources>
 EOF
-fi
 
-if [ ! -f "android-app/app/src/main/res/layout/activity_main.xml" ]; then
-  echo "[+] Создание layout для Activity"
-  cat > android-app/app/src/main/res/layout/activity_main.xml << 'EOF'
+# Стили
+cat > android-app/app/src/main/res/values/styles.xml << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">#007ACC</item>
+        <item name="android:colorPrimaryDark">#005A9C</item>
+        <item name="android:colorAccent">#FF4081</item>
+        <item name="android:windowBackground">#1e1e1e</item>
+    </style>
+</resources>
+EOF
+
+# Layout файл
+cat > android-app/app/src/main/res/layout/activity_main.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -85,36 +122,9 @@ if [ ! -f "android-app/app/src/main/res/layout/activity_main.xml" ]; then
     
 </RelativeLayout>
 EOF
-fi
 
-if [ ! -f "android-app/app/src/main/res/values/strings.xml" ]; then
-  echo "[+] Создание строковых ресурсов"
-  cat > android-app/app/src/main/res/values/strings.xml << 'EOF'
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Code Editor Pro</string>
-</resources>
-EOF
-fi
-
-if [ ! -f "android-app/app/src/main/res/values/styles.xml" ]; then
-  echo "[+] Создание стилей"
-  cat > android-app/app/src/main/res/values/styles.xml << 'EOF'
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:colorPrimary">#007ACC</item>
-        <item name="android:colorPrimaryDark">#005A9C</item>
-        <item name="android:colorAccent">#FF4081</item>
-        <item name="android:windowBackground">#1e1e1e</item>
-    </style>
-</resources>
-EOF
-fi
-
-if [ ! -f "android-app/app/src/main/java/com/example/codeeditor/MainActivity.java" ]; then
-  echo "[+] Создание MainActivity.java"
-  cat > android-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
+# Основная активность
+cat > android-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
 package com.example.codeeditor;
 
 import android.app.Activity;
@@ -131,17 +141,20 @@ import android.net.Uri;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.widget.Toast;
-import androidx.webkit.WebSettingsCompat;
-import androidx.webkit.WebViewFeature;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private SharedPreferences prefs;
+    private static final String PREFS_NAME = "CodeEditorPrefs";
+    private static final String LAST_FILE_KEY = "LastOpenedFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Set fullscreen
+        // Устанавливаем полноэкранный режим
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -149,34 +162,36 @@ public class MainActivity extends Activity {
         );
         
         setContentView(R.layout.activity_main);
+        
+        // Инициализируем SharedPreferences
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        // Initialize WebView
+        // Инициализируем WebView
         webView = findViewById(R.id.webview);
         WebSettings webSettings = webView.getSettings();
         
-        // Enable JavaScript and DOM storage
+        // Включаем JavaScript и DOM storage
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setAllowFileAccess(true);
         
-        // Modern caching mode
+        // Настройки кэширования
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
-        // Enable modern web features if available
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            webSettings.setSafeBrowsingEnabled(true);
-        }
-        
-        // Dark mode support if available
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(webSettings, WebSettingsCompat.FORCE_DARK_ON);
-        }
-        
-        // Enhanced webview client with error handling
+        // Настраиваем WebViewClient
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(android.webkit.WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Page loaded successfully
+                // Страница загружена успешно
+                String lastFile = prefs.getString(LAST_FILE_KEY, "");
+                if (!lastFile.isEmpty()) {
+                    // Открываем последний файл через JavaScript
+                    webView.evaluateJavascript(
+                        "if(typeof switchToFile === 'function') { switchToFile('" + lastFile + "'); }",
+                        null
+                    );
+                }
             }
             
             @Override
@@ -184,9 +199,7 @@ public class MainActivity extends Activity {
             public void onReceivedError(android.webkit.WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 if (request.isForMainFrame()) {
-                    // Handle main frame errors
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        // Modern error reporting
                         String errorMessage = "Error: " + error.getDescription();
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                     }
@@ -195,19 +208,18 @@ public class MainActivity extends Activity {
             
             @Override
             public boolean shouldOverrideUrlLoading(android.webkit.WebView view, WebResourceRequest request) {
-                // Handle local file links internally
                 Uri uri = request.getUrl();
                 if (uri.getScheme().equals("file")) {
-                    return false; // Let WebView handle local files
+                    return false; // Позволяем WebView обрабатывать локальные файлы
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
         });
         
-        // Chrome client for JavaScript dialogs and features
+        // Chrome client для диалогов
         webView.setWebChromeClient(new WebChromeClient());
         
-        // Load the app
+        // Загружаем приложение
         webView.loadUrl("file:///android_asset/index.html");
     }
 
@@ -216,13 +228,7 @@ public class MainActivity extends Activity {
         if (webView.canGoBack()) {
             webView.goBack();
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                this.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, () -> {
-                    finish();
-                });
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
     
@@ -230,6 +236,17 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         webView.onPause();
+        
+        // Сохраняем текущий открытый файл
+        webView.evaluateJavascript(
+            "if(typeof getCurrentFileName === 'function') { getCurrentFileName(); } else { '' }",
+            value -> {
+                String fileName = value;
+                if (fileName != null && !fileName.equals("null") && !fileName.isEmpty()) {
+                    prefs.edit().putString(LAST_FILE_KEY, fileName).apply();
+                }
+            }
+        );
     }
     
     @Override
@@ -245,11 +262,12 @@ public class MainActivity extends Activity {
     }
 }
 EOF
-fi
 
-if [ ! -f "android-app/app/build.gradle" ]; then
-  echo "[+] Создание build.gradle для app модуля"
-  cat > android-app/app/build.gradle << 'EOF'
+# Файлы для сборки
+echo -e "${BLUE}[+] Создание файлов сборки Gradle...${NC}"
+
+# build.gradle для приложения
+cat > android-app/app/build.gradle << 'EOF'
 plugins {
     id 'com.android.application'
 }
@@ -270,17 +288,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug // Используем debug-конфиг для подписи релизов в тестовой среде
-        }
-    }
-    
-    // Добавляем конфигурацию подписи для Debug
-    signingConfigs {
-        debug {
-            storeFile file('../debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
         }
     }
     
@@ -293,16 +300,10 @@ android {
         viewBinding true
     }
     
-    // Fix for duplicate files during build
     packagingOptions {
         resources {
             excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
         }
-    }
-    
-    // Выключаем строгие проверки для тестовой сборки
-    lint {
-        abortOnError false
     }
 }
 
@@ -313,25 +314,33 @@ dependencies {
     implementation 'androidx.webkit:webkit:1.8.0'
 }
 EOF
-fi
 
-if [ ! -f "android-app/build.gradle" ]; then
-  echo "[+] Создание build.gradle для корневого проекта"
-  cat > android-app/build.gradle << 'EOF'
-// Проект использует зависимости из settings.gradle
-plugins {
-    id 'com.android.application' version '8.3.0' apply false
+# Корневой build.gradle
+cat > android-app/build.gradle << 'EOF'
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.0'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
 EOF
-fi
 
-if [ ! -f "android-app/settings.gradle" ]; then
-  echo "[+] Создание settings.gradle"
-  cat > android-app/settings.gradle << 'EOF'
+# settings.gradle
+cat > android-app/settings.gradle << 'EOF'
 pluginManagement {
     repositories {
         google()
@@ -341,7 +350,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -351,11 +360,9 @@ dependencyResolutionManagement {
 rootProject.name = "CodeEditorPro"
 include ':app'
 EOF
-fi
 
-if [ ! -f "android-app/gradle.properties" ]; then
-  echo "[+] Создание gradle.properties"
-  cat > android-app/gradle.properties << 'EOF'
+# gradle.properties
+cat > android-app/gradle.properties << 'EOF'
 # Project-wide Gradle settings
 org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError
 
@@ -369,80 +376,62 @@ org.gradle.caching=true
 org.gradle.daemon=false
 android.builder.sdkDownload=true
 EOF
-fi
 
-# Создаем Gradle wrapper, если его нет
-if [ ! -f "android-app/gradlew" ]; then
-  echo "[+] Создание Gradle wrapper"
-  mkdir -p android-app/gradle/wrapper
-  
-  # Download Gradle wrapper JAR
-  echo "[+] Скачивание Gradle wrapper JAR"
-  if [ -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-    cp gradle/wrapper/gradle-wrapper.jar android-app/gradle/wrapper/
-  else
-    curl -L -o android-app/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar
-  fi
-  
-  # Create gradle-wrapper.properties
-  cat > android-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
-distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.6-all.zip
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists
+# 4. Установка лицензий Android SDK
+echo -e "${BLUE}[+] Настройка Android SDK и лицензий...${NC}"
+
+# Определение ANDROID_HOME
+ANDROID_HOME=${ANDROID_HOME:-$(pwd)/android-sdk}
+mkdir -p $ANDROID_HOME/licenses
+echo -e "${BLUE}[+] Используем ANDROID_HOME: $ANDROID_HOME${NC}"
+
+# Создаем файлы лицензий
+cat > $ANDROID_HOME/licenses/android-sdk-license << 'EOF'
+24333f8a63b6825ea9c5514f83c2829b004d1fee
 EOF
 
-  # Create gradlew file
-  cat > android-app/gradlew << 'EOF'
-#!/bin/sh
-exec java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain "$@"
+# local.properties для проекта
+cat > android-app/local.properties << EOF
+sdk.dir=$ANDROID_HOME
 EOF
-  
-  # Make gradlew executable
-  chmod +x android-app/gradlew
+
+# 5. Сборка APK через Gradle
+echo -e "${BLUE}[+] Запуск сборки через Gradle...${NC}"
+
+# Переходим в директорию проекта
+cd android-app || exit 1
+
+# Создаем gradle wrapper если нужно
+if [ ! -f "./gradlew" ]; then
+    echo -e "${BLUE}[+] Создаем Gradle wrapper...${NC}"
+    gradle wrapper
+    chmod +x gradlew
 fi
 
-# Принятие лицензий Android SDK, если необходимо
-if [ -d "$ANDROID_HOME" ]; then
-  echo "[+] Принятие лицензий Android SDK"
-  mkdir -p $ANDROID_HOME/licenses
-  echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
-  echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+# Запускаем сборку
+echo -e "${BLUE}[+] Выполняем сборку APK...${NC}"
+./gradlew clean assembleDebug --no-daemon --console=plain
+
+# Проверяем результат сборки
+DEBUG_APK="app/build/outputs/apk/debug/app-debug.apk"
+if [ -f "$DEBUG_APK" ]; then
+    echo -e "${GREEN}[+] APK успешно собран: $DEBUG_APK${NC}"
+    
+    # Копируем APK в корневую директорию
+    cp "$DEBUG_APK" "../$OUTPUT_APK"
+    echo -e "${GREEN}[+] APK скопирован в ../$OUTPUT_APK${NC}"
+    
+    # Отправляем в Telegram если возможно
+    if [ -f "../send_to_telegram.py" ]; then
+        cd .. || exit 1
+        echo -e "${BLUE}[+] Отправка APK в Telegram...${NC}"
+        python3 send_to_telegram.py "$OUTPUT_APK" --message "✅ Code Editor Pro APK успешно собран через полноценный Android SDK (размер: $(du -h "$OUTPUT_APK" | cut -f1))"
+    fi
+    
+    exit 0
+else
+    cd .. || exit 1
+    echo -e "${RED}[ERROR] Не удалось собрать APK через Gradle${NC}"
+    echo -e "${RED}[ERROR] Проверьте логи сборки выше${NC}"
+    exit 1
 fi
-
-# Компиляция APK
-echo "[+] Компиляция APK с помощью Gradle"
-cd android-app
-chmod +x ./gradlew
-# Запуск с таймаутом 10 минут, если висит дольше - убиваем
-timeout 600 ./gradlew assembleDebug --info
-cd ..
-
-# Поиск APK
-APK_PATH=$(find android-app -name "*.apk" -type f | head -n 1)
-
-if [ -z "$APK_PATH" ]; then
-  echo "❌ Ошибка: APK не найден после сборки!"
-  exit 1
-fi
-
-# Копирование результирующего APK в корневую директорию
-echo "[+] Копирование APK в корневую директорию"
-cp "$APK_PATH" "code-editor-pro.apk"
-
-# Проверка размера APK
-SIZE=$(du -h code-editor-pro.apk | cut -f1)
-echo "[+] APK успешно создан: code-editor-pro.apk"
-echo "[+] Размер файла: $SIZE"
-
-echo "[+] Отправка APK в Telegram..."
-python3 send_to_telegram.py code-editor-pro.apk "✅ Code Editor Pro APK успешно собран! Полная версия приложения для Android с использованием Android SDK."
-
-echo "=============================================="
-echo "✓ Полноценный APK готов: code-editor-pro.apk"
-echo "=============================================="
-echo "Для установки APK на устройство:"
-echo "1. Разрешите установку из неизвестных источников в настройках Android"
-echo "2. Скачайте APK файл на устройство"
-echo "3. Откройте APK и установите приложение"

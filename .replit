@@ -63,7 +63,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./build_and_push.sh \"Полноценная сборка через Android SDK с автоматической отправкой в Telegram\""
+args = "./build_and_send.sh \"Полноценная сборка через Android SDK с автоматической отправкой в Telegram\""
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]

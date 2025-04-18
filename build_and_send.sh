@@ -1,86 +1,111 @@
 #!/bin/bash
-# Скрипт для сборки APK и отправки его в Telegram
-# Генерирует WebView APK из веб-приложения и отправляет в Telegram
+# Скрипт для сборки полноценного APK через Android SDK и отправки в Telegram
 
-# Устанавливаем переменные цвета для вывода
+# Цвета для вывода
 GREEN='\033[0;32m'
-RED='\033[0;31m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}========== ✅ Сборка Android APK и отправка в Telegram ==========${NC}"
+# Сообщение для коммита
+COMMIT_MESSAGE="${1:-"Обновление APK через чистую сборку Android SDK"}"
 
-# Проверяем наличие необходимых переменных окружения
-if [ -z "$TELEGRAM_TOKEN" ]; then
-    echo -e "${RED}[ERROR] Переменная окружения TELEGRAM_TOKEN не установлена!${NC}"
-    echo -e "${YELLOW}Установите TELEGRAM_TOKEN для отправки файлов в Telegram.${NC}"
-    TELEGRAM_AVAILABLE=0
-else
-    TELEGRAM_AVAILABLE=1
-fi
+echo -e "${BLUE}========== 🚀 Сборка и отправка APK через полный Android SDK ===========${NC}"
 
-if [ -z "$TELEGRAM_TO" ]; then
-    echo -e "${RED}[ERROR] Переменная окружения TELEGRAM_TO не установлена!${NC}"
-    echo -e "${YELLOW}Установите TELEGRAM_TO (ID чата) для отправки файлов в Telegram.${NC}"
-    TELEGRAM_AVAILABLE=0
-fi
+# 1. Собираем APK через полный SDK (без fallback)
+echo -e "${BLUE}[+] Запуск сборки через полный Android SDK...${NC}"
+./build_full_sdk_apk.sh
 
-# Указываем пути по умолчанию
-WEB_APP_DIR="web-app"
-ANDROID_APP_DIR="android-webview-app"
-OUTPUT_APK="./code-editor.apk"
-
-# Сборка полноценного APK через Gradle
-echo -e "${BLUE}[+] Запуск сборки полноценного Android APK через Gradle...${NC}"
-chmod +x create_full_apk.py
-python3 create_full_apk.py "$WEB_APP_DIR" "$ANDROID_APP_DIR" "$OUTPUT_APK"
-
-# Проверяем, успешно ли создан APK
-if [ $? -eq 0 ] && [ -f "$OUTPUT_APK" ]; then
-    echo -e "${GREEN}[+] APK успешно создан: $OUTPUT_APK${NC}"
-    APK_SIZE=$(du -h "$OUTPUT_APK" | cut -f1)
-    echo -e "${GREEN}[+] Размер файла: $APK_SIZE${NC}"
-    
-    # Отправляем APK в Telegram, если доступно
-    if [ $TELEGRAM_AVAILABLE -eq 1 ]; then
-        echo -e "${BLUE}[+] Отправка APK в Telegram...${NC}"
-        
-        # Генерируем информативное сообщение
-        COMMIT_INFO=$(git log -1 --pretty=format:"Commit: %h - %s (%an)" 2>/dev/null || echo "")
-        if [ -n "$COMMIT_INFO" ]; then
-            MESSAGE="✅ Code Editor APK успешно собран!\n\nВерсия: 1.0\nРазмер: $APK_SIZE\n\n$COMMIT_INFO"
-        else
-            MESSAGE="✅ Code Editor APK успешно собран!\n\nВерсия: 1.0\nРазмер: $APK_SIZE"
-        fi
-        
-        # Отправляем через Python-скрипт
-        python3 send_to_telegram.py "$OUTPUT_APK" --message "$MESSAGE"
-        
-        if [ $? -eq 0 ]; then
-            echo -e "${GREEN}[+] APK успешно отправлен в Telegram!${NC}"
-        else
-            echo -e "${RED}[ERROR] Не удалось отправить APK в Telegram.${NC}"
-        fi
-    else
-        echo -e "${YELLOW}[!] Отправка в Telegram пропущена из-за отсутствия переменных окружения.${NC}"
-    fi
-    
-    echo -e "${GREEN}==========================================================${NC}"
-    echo -e "${GREEN}✅ Сборка завершена успешно!${NC}"
-    echo -e "${GREEN}APK доступен по пути: $OUTPUT_APK${NC}"
-    echo -e "${GREEN}==========================================================${NC}"
-    
-    # Предлагаем инструкции по установке
-    echo -e "${BLUE}Для установки на устройство Android:${NC}"
-    echo -e "1. Включите режим разработчика на вашем устройстве"
-    echo -e "2. Включите отладку по USB"
-    echo -e "3. Подключите устройство к компьютеру"
-    echo -e "4. Выполните команду: ${YELLOW}adb install -r $OUTPUT_APK${NC}"
-    
-    exit 0
-else
-    echo -e "${RED}[ERROR] Не удалось создать APK файл!${NC}"
-    echo -e "${RED}==========================================================${NC}"
+# Проверяем результат сборки
+if [ ! -f "code-editor.apk" ]; then
+    echo -e "${RED}[ERROR] Сборка APK через полный Android SDK не удалась${NC}"
     exit 1
 fi
+
+# 2. Уведомляем о успешной сборке
+echo -e "${GREEN}[+] APK успешно собран через полный Android SDK${NC}"
+APK_SIZE=$(du -h code-editor.apk | cut -f1)
+echo -e "${GREEN}[+] Размер APK: $APK_SIZE${NC}"
+
+# 3. Отправляем в Telegram
+if [ -f "send_to_telegram.py" ]; then
+    echo -e "${BLUE}[+] Отправка APK в Telegram...${NC}"
+    python3 send_to_telegram.py code-editor.apk --message "✅ Code Editor Pro APK успешно собран через полноценный Android SDK (размер: $APK_SIZE)"
+else
+    echo -e "${YELLOW}[!] Скрипт отправки в Telegram не найден${NC}"
+fi
+
+# 4. Действия с GitHub если доступны переменные
+if [ -n "$GITHUB_TOKEN" ] && [ -n "$GITHUB_REPOSITORY" ]; then
+    echo -e "${BLUE}[+] Подготовка к пушу в GitHub...${NC}"
+    
+    # Настраиваем Git
+    git config --global user.name "GitHub Actions"
+    git config --global user.email "actions@github.com"
+    
+    # Добавляем файлы и коммитим
+    git add .
+    git commit -m "$COMMIT_MESSAGE"
+    
+    # Создаем тег с датой
+    TAG="v1.0.$(date +%Y%m%d%H%M)"
+    git tag -a "$TAG" -m "Release $TAG"
+    
+    # Пушим изменения
+    GITHUB_URL="https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+    git push "$GITHUB_URL" HEAD:main
+    git push "$GITHUB_URL" --tags
+    
+    echo -e "${GREEN}[+] Изменения успешно отправлены в GitHub${NC}"
+    
+    # Опционально: создаем релиз через API
+    if command -v curl > /dev/null; then
+        echo -e "${BLUE}[+] Создание релиза в GitHub...${NC}"
+        
+        # Формируем JSON для создания релиза
+        JSON_TMP=$(mktemp)
+        cat > "$JSON_TMP" << EOF
+{
+  "tag_name": "$TAG",
+  "name": "Code Editor Pro - $TAG",
+  "body": "Полноценный APK собранный через Android SDK",
+  "draft": false,
+  "prerelease": false
+}
+EOF
+        
+        # Создаем релиз через API
+        RESPONSE=$(curl -s -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$GITHUB_REPOSITORY/releases" \
+          -d @"$JSON_TMP")
+        
+        # Получаем upload_url из ответа
+        UPLOAD_URL=$(echo "$RESPONSE" | grep -o '"upload_url": "[^"]*' | cut -d'"' -f4 | sed 's/{?name,label}//')
+        
+        if [ -n "$UPLOAD_URL" ]; then
+            echo -e "${BLUE}[+] Загрузка APK в релиз...${NC}"
+            
+            # Загружаем APK файл
+            curl -s -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/vnd.android.package-archive" \
+              --data-binary @"code-editor.apk" \
+              "${UPLOAD_URL}?name=code-editor.apk"
+            
+            echo -e "${GREEN}[+] APK успешно загружен в релиз GitHub${NC}"
+        else
+            echo -e "${RED}[ERROR] Не удалось создать релиз в GitHub${NC}"
+        fi
+        
+        # Удаляем временный файл
+        rm -f "$JSON_TMP"
+    fi
+else
+    echo -e "${YELLOW}[!] Переменные GitHub не найдены, пропускаем отправку в GitHub${NC}"
+fi
+
+echo -e "${GREEN}========== ✅ Процесс сборки и отправки успешно завершен ===========${NC}"

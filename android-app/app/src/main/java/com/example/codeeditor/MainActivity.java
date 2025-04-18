@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
         
         setContentView(R.layout.activity_main);
         
-        // Инициализируем SharedPreferences для сохранения состояния
+        // Инициализируем SharedPreferences
         prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         // Инициализируем WebView
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
         
-        // Устанавливаем кэширование
+        // Настройки кэширования
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
         // Настраиваем WebViewClient
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
             }
         });
         
-        // Настраиваем WebChromeClient для диалогов JavaScript
+        // Chrome client для диалогов
         webView.setWebChromeClient(new WebChromeClient());
         
         // Загружаем приложение
