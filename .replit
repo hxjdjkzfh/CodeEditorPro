@@ -31,6 +31,14 @@ args = "Build Real APK"
 task = "workflow.run"
 args = "Build Fixed APK"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Direct APK"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build From Existing"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -100,6 +108,34 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./build_fixed_apk.sh"
+
+[[workflows.workflow]]
+name = "Build Direct APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./direct_apk_build.sh"
+
+[[workflows.workflow]]
+name = "Build From Existing"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./build_from_existing.sh"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]
