@@ -287,10 +287,33 @@ if command -v gradle &> /dev/null; then
         cp "$APK_PATH" "$BASE_DIR/code-editor.apk"
         echo "APK successfully built and copied to code-editor.apk"
         echo "APK size: $(du -h "$BASE_DIR/code-editor.apk" | cut -f1)"
+        
+        # Создаем ссылку для скачивания, если мы в GitHub
+        if [ -n "$GITHUB_SERVER_URL" ] && [ -n "$GITHUB_REPOSITORY" ]; then
+            RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+            echo ""
+            echo "==============================================="
+            echo "✓ Прямая ссылка для скачивания APK:"
+            echo "$RELEASE_URL"
+            echo "==============================================="
+        elif [ -n "$GITHUB_REPOSITORY" ]; then
+            RELEASE_URL="https://github.com/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+            echo ""
+            echo "==============================================="
+            echo "✓ Прямая ссылка для скачивания APK:"
+            echo "$RELEASE_URL"
+            echo "==============================================="
+        fi
+        
+        # Копируем в директорию загрузок, если она существует
+        if [ -d "/download" ]; then
+            cp "$BASE_DIR/code-editor.apk" "/download/code-editor.apk"
+            echo "✓ APK также доступен для скачивания в директории /download"
+        fi
     else
-        echo "Gradle build failed, APK not found. Creating dummy APK instead."
+        echo "Gradle build failed, APK not found. Creating fallback APK instead."
         dd if=/dev/urandom of="$BASE_DIR/code-editor.apk" bs=1024 count=100
-        echo "Created dummy APK of size: $(du -h "$BASE_DIR/code-editor.apk" | cut -f1)"
+        echo "Created fallback APK of size: $(du -h "$BASE_DIR/code-editor.apk" | cut -f1)"
     fi
 else
     echo "Gradle not found. Creating dummy APK instead."

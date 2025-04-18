@@ -188,6 +188,21 @@ def main():
         print("\n=== APK создан успешно! ===")
         print(f"APK-файл: {output_file}")
         print(f"Размер: {os.path.getsize(output_file)} байт")
+        
+        # Создаем копию в директории загрузок, если она существует
+        download_path = "/download/code-editor.apk"
+        if os.path.isdir("/download"):
+            shutil.copy(output_file, download_path)
+            print(f"\n✓ APK также доступен для скачивания по пути: {download_path}")
+        
+        # Выводим ссылку на GitHub Release, если возможно
+        github_repo = os.environ.get("GITHUB_REPOSITORY")
+        if github_repo:
+            print("\n===============================================")
+            print("✓ Прямая ссылка для скачивания APK:")
+            print(f"https://github.com/{github_repo}/releases/latest/download/code-editor.apk")
+            print("===============================================")
+            
         print("\nДля установки на устройство используйте команду:")
         print(f"adb install -r {output_file}")
     else:

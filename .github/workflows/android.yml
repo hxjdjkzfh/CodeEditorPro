@@ -39,6 +39,14 @@ jobs:
     - name: Build debug APK
       run: ./gradlew assembleDebug
       
+    # Upload artifact for download from Actions tab
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-editor-standard-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        
+    # Create a GitHub Release when tags are pushed
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
@@ -48,6 +56,18 @@ jobs:
         name: Android App Release ${{ github.ref }}
         draft: false
         prerelease: false
+        
+    # Create a release even for non-tags (every commit to main)
+    - name: Create auto-release for non-tags
+      uses: marvinpinto/action-automatic-releases@latest
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+      with:
+        repo_token: ${{ github.token }}
+        automatic_release_tag: "latest-standard"
+        prerelease: false
+        title: "Latest Standard Build"
+        files: |
+          app/build/outputs/apk/debug/app-debug.apk
         
   build-webview-app:
     name: Build WebView Android App

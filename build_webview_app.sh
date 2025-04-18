@@ -74,6 +74,29 @@ if [ -s "$OUTPUT_APK" ]; then
     cp "$OUTPUT_APK" "$FINAL_APK"
     echo "APK copied to: $FINAL_APK"
     echo "APK size: $(du -h "$FINAL_APK" | cut -f1)"
+    
+    # Создаем ссылку для скачивания, если мы в GitHub
+    if [ -n "$GITHUB_SERVER_URL" ] && [ -n "$GITHUB_REPOSITORY" ]; then
+        RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+        echo ""
+        echo "==============================================="
+        echo "✓ Прямая ссылка для скачивания APK:"
+        echo "$RELEASE_URL"
+        echo "==============================================="
+    elif [ -n "$GITHUB_REPOSITORY" ]; then
+        RELEASE_URL="https://github.com/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+        echo ""
+        echo "==============================================="
+        echo "✓ Прямая ссылка для скачивания APK:"
+        echo "$RELEASE_URL"
+        echo "==============================================="
+    fi
+    
+    # Копируем в директорию загрузок, если она существует
+    if [ -d "/download" ]; then
+        cp "$FINAL_APK" "/download/code-editor.apk"
+        echo "✓ APK также доступен для скачивания в директории /download"
+    fi
 else
     echo "Failed to create regular APK, creating fallback file..."
     dd if=/dev/urandom of="$FINAL_APK" bs=1024 count=100

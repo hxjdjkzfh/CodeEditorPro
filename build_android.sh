@@ -81,12 +81,36 @@ EOF
     fi
     echo "✓ APK copied to ./code-editor.apk with size $(du -h ./code-editor.apk | cut -f1)"
     
+    # Получаем прямую ссылку на APK в GitHub, если доступно
+    if [ -n "$GITHUB_SERVER_URL" ] && [ -n "$GITHUB_REPOSITORY" ]; then
+        RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+        echo ""
+        echo "==============================================="
+        echo "✓ Прямая ссылка для скачивания APK:"
+        echo "$RELEASE_URL"
+        echo "==============================================="
+    elif [ -n "$GITHUB_REPOSITORY" ]; then
+        RELEASE_URL="https://github.com/$GITHUB_REPOSITORY/releases/latest/download/code-editor.apk"
+        echo ""
+        echo "==============================================="
+        echo "✓ Прямая ссылка для скачивания APK:"
+        echo "$RELEASE_URL"
+        echo "==============================================="
+    fi
+    
     echo ""
     echo "To install the APK on your device:"
     echo "1. Enable Developer options on your Android device"
     echo "2. Enable USB debugging"
     echo "3. Connect your device to computer"
     echo "4. Run: adb install -r ./code-editor.apk"
+    
+    # Копируем APK в общедоступную директорию, если она существует
+    if [ -d "/download" ]; then
+        cp ./code-editor.apk /download/code-editor.apk
+        echo ""
+        echo "✓ APK также доступен для скачивания в директории /download"
+    fi
 else
     echo "✗ Failed to build APK!"
     exit 1
