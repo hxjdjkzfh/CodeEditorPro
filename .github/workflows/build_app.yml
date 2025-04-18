@@ -17,20 +17,25 @@ jobs:
     name: Build Android App
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
       with:
-        java-version: '11'
+        java-version: '17'
         distribution: 'temurin'
         cache: gradle
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: latest
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
+    - name: Create local.properties with SDK path
+      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
       
     - name: Build with Gradle
       run: ./gradlew build
@@ -40,7 +45,7 @@ jobs:
       
     # Upload standard app artifact
     - name: Upload Standard Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: code-editor-standard-apk
         path: app/build/outputs/apk/debug/app-debug.apk
@@ -122,6 +127,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
+import android.net.Uri;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.widget.Toast;
+import androidx.webkit.WebSettingsCompat;
+import androidx.webkit.WebViewFeature;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -147,14 +160,53 @@ public class MainActivity extends Activity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         
-        // Note: setAppCacheEnabled is deprecated in API level 33
-        // Using HTTP caching instead
+        // Modern caching mode
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
-        // Client for handling page navigation
-        webView.setWebViewClient(new WebViewClient());
+        // Enable modern web features if available
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webSettings.setSafeBrowsingEnabled(true);
+        }
         
-        // Client for handling JavaScript dialogs
+        // Dark mode support if available
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+            WebSettingsCompat.setForceDark(webSettings, WebSettingsCompat.FORCE_DARK_ON);
+        }
+        
+        // Enhanced webview client with error handling
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(android.webkit.WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Page loaded successfully
+            }
+            
+            @Override
+            @TargetApi(Build.VERSION_CODES.M)
+            public void onReceivedError(android.webkit.WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                if (request.isForMainFrame()) {
+                    // Handle main frame errors
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        // Modern error reporting
+                        String errorMessage = "Error: " + error.getDescription();
+                        Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            
+            @Override
+            public boolean shouldOverrideUrlLoading(android.webkit.WebView view, WebResourceRequest request) {
+                // Handle local file links internally
+                Uri uri = request.getUrl();
+                if (uri.getScheme().equals("file")) {
+                    return false; // Let WebView handle local files
+                }
+                return super.shouldOverrideUrlLoading(view, request);
+            }
+        });
+        
+        // Chrome client for JavaScript dialogs and features
         webView.setWebChromeClient(new WebChromeClient());
         
         // Load the app
@@ -166,8 +218,32 @@ public class MainActivity extends Activity {
         if (webView.canGoBack()) {
             webView.goBack();
         } else {
-            super.onBackPressed();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                this.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, () -> {
+                    finish();
+                });
+            } else {
+                super.onBackPressed();
+            }
         }
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        webView.onPause();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        webView.onResume();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        webView.destroy();
+        super.onDestroy();
     }
 }
 EOF
@@ -214,12 +290,12 @@ plugins {
 
 android {
     namespace "com.example.codeeditor"
-    compileSdk 33
+    compileSdk 34
     
     defaultConfig {
         applicationId "com.example.codeeditor"
-        minSdk 21
-        targetSdk 33
+        minSdk 24
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
@@ -232,8 +308,12 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
+    buildFeatures {
+        viewBinding true
     }
     
     // Fix for duplicate files during build
@@ -246,8 +326,9 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.webkit:webkit:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.webkit:webkit:1.8.0'
 }
 EOF
         
@@ -258,7 +339,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0'
+        classpath 'com.android.tools.build:gradle:8.3.0'
     }
 }
 
@@ -317,7 +398,7 @@ EOF
         cat > android-webview-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.6-all.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 EOF
@@ -327,21 +408,17 @@ EOF
     - name: Build WebView App
       run: |
         cd android-webview-app
-        ./gradlew assembleDebug || echo "WebView app build failed, continuing with Python script"
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        ./gradlew assembleDebug
       
-    # Create WebView APK with Python script as backup
-    - name: Create WebView APK with Python
-      if: always()
-      run: |
-        python create_minimal_apk.py web-app android-webview-app ./code-editor-webview.apk
-        ls -la code-editor-webview.apk
+# Убрана сборка минимального APK в пользу полной сборки Gradle
       
     # Upload WebView app artifact
     - name: Upload WebView Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: code-editor-webview-apk
-        path: code-editor-webview.apk
+        path: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
     
     # Send WebView APK to Telegram
     - name: Send WebView APK to Telegram
@@ -351,4 +428,4 @@ EOF
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: "✅ Code Editor WebView APK built successfully!"
-        document: code-editor-webview.apk
+        document: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
