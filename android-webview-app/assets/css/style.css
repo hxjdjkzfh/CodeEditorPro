@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+}
+
+body {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.toolbar {
+    background-color: #252526;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.tabs {
+    display: flex;
+    overflow-x: auto;
+    max-width: 70%;
+}
+
+.tab {
+    padding: 5px 10px;
+    margin-right: 2px;
+    background-color: #2d2d2d;
+    cursor: pointer;
+    border-top: 2px solid transparent;
+    white-space: nowrap;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab.active {
+    background-color: #1e1e1e;
+    border-top: 2px solid #007acc;
+}
+
+.tab.unsaved {
+    font-style: italic;
+    color: #e6db74;
+}
+
+.tab-add {
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #999;
+}
+
+.actions button {
+    padding: 5px 10px;
+    background-color: #0e639c;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.editor {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    overflow: auto;
+    white-space: pre;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+}
+
+.console {
+    height: 150px;
+    background-color: #1e1e1e;
+    border-top: 1px solid #3e3e42;
+    overflow: auto;
+}
+
+.console-header {
+    background-color: #252526;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+.console-output {
+    padding: 10px;
+    color: #cccccc;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+}
+
+.syntax-keyword { color: #569cd6; }
+.syntax-string { color: #ce9178; }
+.syntax-comment { color: #6a9955; }
+.syntax-function { color: #dcdcaa; }
+.syntax-number { color: #b5cea8; }
+.syntax-operator { color: #d4d4d4; }
+
+@media (max-width: 600px) {
+    .tabs {
+        max-width: 60%;
+    }
+    
+    .tab {
+        max-width: 100px;
+    }
+}

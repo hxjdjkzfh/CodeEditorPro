@@ -1,98 +1,31 @@
-name: Android CI/CD
+name: Android CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up JDK 17
+    - name: set up JDK 11
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '11'
         distribution: 'temurin'
         cache: gradle
-
-    - name: Show environment info
-      run: |
-        java -version
-        echo "JAVA_HOME: $JAVA_HOME"
-        echo "Android SDK: $ANDROID_SDK_ROOT"
-        ls -la
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
-      
-    - name: Install Android SDK components
-      run: |
-        yes | sdkmanager --licenses
-        sdkmanager "platforms;android-33" "build-tools;33.0.2"
-        echo "Android SDK components installed"
-      
-    - name: Build Debug APK using custom script
-      run: |
-        chmod +x ./build_android.sh
-        ./build_android.sh
-      
-    - name: Validate APK
-      run: |
-        find app/build/outputs -type f -name "*.apk" | sort
-        if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
-          echo "APK successfully built"
-          ls -lh app/build/outputs/apk/debug/app-debug.apk
-          file app/build/outputs/apk/debug/app-debug.apk
-        else
-          echo "ERROR: APK build failed"
-          exit 1
-        fi
-      
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Build debug APK
+      run: ./gradlew assembleDebug
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
-        
-  release:
-    needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Download APK from build
-      uses: actions/download-artifact@v3
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug
-        
-    - name: Verify downloaded artifact
-      run: |
-        ls -la app/build/outputs/apk/debug
-        echo "Checking APK file size:"
-        apk_size=$(du -h app/build/outputs/apk/debug/app-debug.apk | cut -f1)
-        echo "APK size: $apk_size"
-        file app/build/outputs/apk/debug/app-debug.apk
-        
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v1.0.${{ github.run_number }}
-        name: Release v1.0.${{ github.run_number }}
-        draft: false
-        prerelease: false
-        files: app/build/outputs/apk/debug/app-debug.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

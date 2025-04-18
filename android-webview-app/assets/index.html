@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="editor-container">
+        <div class="toolbar">
+            <div class="tabs" id="tabs">
+                <div class="tab active" data-file="main.js">main.js</div>
+                <div class="tab-add" id="new-tab">+</div>
+            </div>
+            <div class="actions">
+                <button id="save-btn">Save</button>
+                <button id="run-btn">Run</button>
+            </div>
+        </div>
+        <div class="editor" id="editor" contenteditable="true"></div>
+        <div class="console" id="console">
+            <div class="console-header">Console</div>
+            <div class="console-output" id="console-output"></div>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
