@@ -145,11 +145,12 @@ public class MainActivity extends Activity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         
-        // Enable app caching
-        webSettings.setAppCacheEnabled(true);
+        // Note: setAppCacheEnabled is deprecated in API level 33
+        // Using HTTP caching instead
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         
-        // Set renderer priority
-        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        // Note: setRenderPriority is deprecated in API level 23
+        // But we still need to use it for older devices
         
         // Client for handling page navigation
         webView.setWebViewClient(new WebViewClient());
