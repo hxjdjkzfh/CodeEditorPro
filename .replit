@@ -23,6 +23,14 @@ args = "Build App"
 task = "workflow.run"
 args = "Build and Push"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Real APK"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Fixed APK"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -64,6 +72,34 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./build_and_send.sh \"Полноценная сборка через Android SDK с автоматической отправкой в Telegram\""
+
+[[workflows.workflow]]
+name = "Build Real APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./build_real_apk.sh"
+
+[[workflows.workflow]]
+name = "Build Fixed APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./build_fixed_apk.sh"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]
