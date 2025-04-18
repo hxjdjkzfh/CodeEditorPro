@@ -1,16 +1,39 @@
+// В современных версиях Gradle эти репозитории определяются в settings.gradle
+// Но оставляем репозитории для buildscript
 buildscript {
     repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
     }
+    
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22'
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+// Определяем настройки Java и Android для всех проектов
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            android {
+                // Устанавливаем Java 17 для совместимости с новейшими версиями Android
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+                
+                // Улучшаем совместимость с новыми версиями Android
+                defaultConfig {
+                    if (project.hasProperty('minSdk')) {
+                        minSdk 24
+                    }
+                    if (project.hasProperty('targetSdk')) {
+                        targetSdk 34
+                    }
+                }
+            }
+        }
     }
 }

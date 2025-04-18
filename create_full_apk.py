@@ -415,18 +415,34 @@ gradle %*
             with open(os.path.join(android_dir, "local.properties"), "w") as f:
                 f.write("sdk.dir=" + android_home_fixed)
         
-        if platform.system() != "Windows":
-            # Linux/macOS
-            if os.path.exists(os.path.join(android_dir, "gradlew")):
-                gradlew_cmd = f"cd {android_dir} && ./gradlew assembleDebug"
+        # Проверяем, запускаем ли мы сборку в корне проекта или в android_dir
+        if os.path.exists("./gradlew") or os.path.exists("./gradlew.bat"):
+            # Мы в корне проекта, где есть общий settings.gradle
+            print("[INFO] Используем корневую конфигурацию Gradle для сборки")
+            project_path = os.path.basename(android_dir) + ":app"
+            
+            if platform.system() != "Windows":
+                # Linux/macOS
+                gradlew_cmd = f"./gradlew :{project_path}:assembleDebug"
             else:
-                gradlew_cmd = f"cd {android_dir} && gradle assembleDebug"
+                # Windows
+                gradlew_cmd = f"gradlew.bat :{project_path}:assembleDebug"
         else:
-            # Windows
-            if os.path.exists(os.path.join(android_dir, "gradlew.bat")):
-                gradlew_cmd = f"cd {android_dir} && gradlew.bat assembleDebug"
+            # Нет общей конфигурации, запускаем сборку в директории android_dir
+            print("[INFO] Используем изолированную конфигурацию Gradle")
+            
+            if platform.system() != "Windows":
+                # Linux/macOS
+                if os.path.exists(os.path.join(android_dir, "gradlew")):
+                    gradlew_cmd = f"cd {android_dir} && ./gradlew assembleDebug"
+                else:
+                    gradlew_cmd = f"cd {android_dir} && gradle assembleDebug"
             else:
-                gradlew_cmd = f"cd {android_dir} && gradle assembleDebug"
+                # Windows
+                if os.path.exists(os.path.join(android_dir, "gradlew.bat")):
+                    gradlew_cmd = f"cd {android_dir} && gradlew.bat assembleDebug"
+                else:
+                    gradlew_cmd = f"cd {android_dir} && gradle assembleDebug"
         
         success, output = run_command(gradlew_cmd)
         if not success:
@@ -435,16 +451,45 @@ gradle %*
         
         print("[INFO] Сборка через Gradle завершена успешно")
         
-        # Копируем собранный APK
-        debug_apk_path = os.path.join(android_dir, "app", "build", "outputs", "apk", "debug", "app-debug.apk")
-        if os.path.exists(debug_apk_path):
-            print(f"[INFO] Копируем собранный APK в {output_path}")
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            shutil.copy2(debug_apk_path, output_path)
-            print(f"[SUCCESS] APK скопирован: {output_path}")
+        # Ищем собранный APK в разных возможных местах
+        potential_paths = [
+            os.path.join(android_dir, "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
+            os.path.join("android-webview-app", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
+            os.path.join("app", "build", "outputs", "apk", "debug", "app-debug.apk")
+        ]
+        
+        found_apk = False
+        for debug_apk_path in potential_paths:
+            if os.path.exists(debug_apk_path):
+                print(f"[INFO] Найден APK по пути: {debug_apk_path}")
+                print(f"[INFO] Копируем собранный APK в {output_path}")
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                shutil.copy2(debug_apk_path, output_path)
+                print(f"[SUCCESS] APK скопирован: {output_path}")
+                found_apk = True
+                break
+        
+        if not found_apk:
+            # Поиск APK по всей директории, если он не найден в стандартных местах
+            print("[INFO] Ищем APK в других директориях...")
+            for root, dirs, files in os.walk("."):
+                for file in files:
+                    if file.endswith(".apk"):
+                        apk_path = os.path.join(root, file)
+                        print(f"[INFO] Найден APK: {apk_path}")
+                        print(f"[INFO] Копируем собранный APK в {output_path}")
+                        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                        shutil.copy2(apk_path, output_path)
+                        print(f"[SUCCESS] APK скопирован: {output_path}")
+                        found_apk = True
+                        break
+                if found_apk:
+                    break
+        
+        if found_apk:
             return True
         else:
-            print(f"[ERROR] Собранный APK не найден по пути: {debug_apk_path}")
+            print("[ERROR] Собранный APK не найден")
             return False
     
     except Exception as e:

@@ -53,11 +53,18 @@ _Примечание: изображения будут добавлены по
 #### Только сборка APK
 
 ```bash
-# Создать минимальный APK-файл
-python3 create_minimal_apk.py
-
-# Или запустить полную сборку Android-приложения
+# Запустить полную сборку Android-приложения через Gradle
 ./build_android.sh
+
+# Или использовать Python-скрипт для сборки
+python3 create_full_apk.py web-app android-webview-app ./code-editor.apk
+```
+
+#### Проверка APK
+
+```bash
+# Проверить корректность созданного APK
+./verify_android_app.sh
 ```
 
 #### Подробные инструкции
