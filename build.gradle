@@ -5,8 +5,8 @@ buildscript {
         mavenCentral() // Replacing jcenter() which is deprecated
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2' // More stable version
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31' // Updated Kotlin
+        classpath 'com.android.tools.build:gradle:7.2.2' // Updated for Java 17 compatibility
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21' // Updated Kotlin
     }
 }
 
@@ -32,4 +32,10 @@ gradle.taskGraph.whenReady { graph ->
             task.enabled = false
         }
     }
+}
+
+// Ensure Java 17 compatibility
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = '7.4.2'
 }
