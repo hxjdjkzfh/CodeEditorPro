@@ -19,6 +19,14 @@ args = "Android App"
 task = "workflow.run"
 args = "Build App"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build APK"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Large APK"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -46,6 +54,34 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "chmod +x build_android.sh && ./build_android.sh sdk"
+
+[[workflows.workflow]]
+name = "Build APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "chmod +x *.sh && ./build_android.sh"
+
+[[workflows.workflow]]
+name = "Build Large APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "chmod +x *.sh && ./build_android.sh"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]

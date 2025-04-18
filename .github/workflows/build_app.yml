@@ -31,14 +31,16 @@ jobs:
         chmod +x gradlew
         find . -name "gradlew" -exec chmod +x {} \;
         
-    - name: Build Android APK (Full SDK method)
+    - name: Build Large Android APK (10+ MB)
       run: |
-        ./build_android.sh sdk
+        ./build_android.sh
         
-    - name: Verify APK
+    - name: Verify APK Size
       run: |
         ls -lah code-editor.apk
-        unzip -l code-editor.apk | grep classes.dex
+        du -h code-editor.apk
+        echo "Проверка размера APK - должен быть не менее 10 МБ"
+        unzip -l code-editor.apk | grep -q classes.dex && echo "✓ DEX файл найден" || echo "⚠️ DEX файл отсутствует"
         
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
@@ -51,26 +53,60 @@ jobs:
         TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
         TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
       run: |
-        python3 send_to_telegram.py code-editor.apk --message "✅ Финальная версия APK Code Editor Pro! Полноценное мобильное приложение для Android с поддержкой всех языков программирования."
+        APK_SIZE=$(du -h code-editor.apk | cut -f1)
+        BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+        COMMIT_SHA=$(git rev-parse HEAD)
         
+        # Create message with date, size and commit info
+        MESSAGE="✅ Code Editor Pro APK Build ${{ github.run_number }}
+        📅 Date: $BUILD_DATE
+        📦 Size: $APK_SIZE
+        🔄 Commit: $COMMIT_SHA
+        
+        To roll back to this version:
+        \`\`\`
+        git checkout $COMMIT_SHA
+        \`\`\`"
+        
+        python3 send_to_telegram.py code-editor.apk --message "$MESSAGE"
+        
+    - name: Get build information
+      id: build_info
+      run: |
+        echo "apk_size=$(du -h code-editor.apk | cut -f1)" >> $GITHUB_OUTPUT
+        echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "build_date=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
     - name: Create GitHub Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v1
       with:
-        name: Code Editor Pro - Latest Build
+        name: Code Editor Pro - Build ${{ github.run_number }} (${{ steps.build_info.outputs.build_date }})
         tag_name: v1.0.${{ github.run_number }}
         files: |
           code-editor.apk
         body: |
-          ## Code Editor Pro - Полная версия
+          ## Code Editor Pro - Full Version
+
+          Complete Android code editor with support for multiple programming languages.
           
-          Полноценный Android-редактор кода с поддержкой множества языков программирования.
+          ### Build Information
+          - 📅 Date: ${{ steps.build_info.outputs.build_date }}
+          - 📦 Size: ${{ steps.build_info.outputs.apk_size }}
+          - 🔄 Commit: ${{ steps.build_info.outputs.commit_sha }}
           
-          ### Особенности:
-          - Подсветка синтаксиса для множества языков
-          - Интуитивный интерфейс с вкладками
-          - Темная тема в стиле Windows 98 High Contrast
-          - Автоматическое сохранение несохраненного кода
-          - Панель с настройками и интерфейсом как в Notepad++
+          ### How to roll back to this version
+          ```
+          git checkout ${{ github.sha }}
+          ```
+          
+          ### Features
+          - Syntax highlighting for multiple languages (JS, Python, HTML, CSS, Kotlin, Java)
+          - Intuitive interface with tabs and drag-and-drop functionality
+          - Dark theme in Windows 98 High Contrast style
+          - Automatic saving of unsaved code every minute
+          - Settings panel with Notepad++-style interface
+          - Automatic restoration after closing the app
+          - Automatic backup creation
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

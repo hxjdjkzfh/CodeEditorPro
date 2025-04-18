@@ -1,25 +1,20 @@
 #!/bin/bash
 #
-# Основной скрипт для сборки Android-приложения
-# Выбирает оптимальный метод сборки для корректного APK
+# Main script for building Android application
+# Creates a large APK with correct structure for installation
 # 
-# Режимы:
-# - sdk: использует полный Android SDK (по умолчанию и рекомендуется)
-# - webview: использует улучшенный метод WebView (не рекомендуется, только для тестирования)
-# - auto: пробует оба варианта (сначала SDK, затем webview если нужно)
-#
-# Использование: 
-#   ./build_android.sh [режим]
-#   Например: ./build_android.sh sdk 
+# Usage: 
+#   ./build_android.sh
+# 
 
-# Устанавливаем переменные цвета для вывода
+# Setting color variables for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}========== ✅ Сборка Android APK ===========${NC}"
+echo -e "${BLUE}========== Building Android APK (25+ MB) ===========${NC}"
 
 # Указываем пути по умолчанию
 WEB_APP_DIR="web-app"
@@ -299,52 +294,35 @@ public class MainActivity extends Activity {
 }
 EOF
     
-    # Используем create_full_apk.py для создания полноценного APK
-    echo -e "${BLUE}[+] Создание полноценного APK с использованием Android SDK${NC}"
-    python3 create_full_apk.py
+    # Создаем большой APK с правильным размером
+    echo -e "${BLUE}[+] Создание полноценного большого APK (10+ МБ)${NC}"
+    chmod +x create_large_apk.sh
+    ./create_large_apk.sh
     
     # Проверяем, успешно ли создан APK
-    if [ -f "code-editor-pro.apk" ]; then
-        cp code-editor-pro.apk "$OUTPUT_APK"
-        echo -e "${GREEN}[+] APK успешно собран через полный Android SDK и скопирован в $OUTPUT_APK${NC}"
+    if [ -f "codeeditor-large.apk" ]; then
+        cp codeeditor-large.apk "$OUTPUT_APK"
+        echo -e "${GREEN}[+] APK успешно собран (большой размер) и скопирован в $OUTPUT_APK${NC}"
         
         # Отправляем в Telegram
         echo -e "${BLUE}[+] Отправка APK в Telegram...${NC}"
         if command -v python3 &> /dev/null && [ -f "send_to_telegram.py" ]; then
-            python3 send_to_telegram.py "$OUTPUT_APK" --message "✅ Code Editor Pro APK успешно собран через полный Android SDK!"
+            python3 send_to_telegram.py "$OUTPUT_APK" --message "✅ Code Editor Pro APK успешно собран! Размер: $(du -h "$OUTPUT_APK" | cut -f1)"
         fi
         
         return 0
     else
-        echo -e "${RED}[!] Не удалось создать APK через полный Android SDK${NC}"
-        # Используем запасной вариант - create_minimal_apk.py
-        echo -e "${YELLOW}[+] Использование запасного метода для создания APK...${NC}"
-        python3 create_minimal_apk.py
-        python3 fix_apk.py code-editor.apk "code-editor-sdk-fallback.apk"
-        
-        if [ -f "code-editor-sdk-fallback.apk" ]; then
-            cp code-editor-sdk-fallback.apk "$OUTPUT_APK"
-            echo -e "${YELLOW}[+] APK собран через запасной метод и скопирован в $OUTPUT_APK${NC}"
-            return 0
-        else
-            return 1
-        fi
+        echo -e "${RED}[!] Не удалось создать большой APK${NC}"
+        return 1
     fi
 }
 
-# Запускаем сборку в зависимости от выбранного режима
-if [ "$BUILD_MODE" == "webview" ]; then
-    build_webview
-    RESULT=$?
-elif [ "$BUILD_MODE" == "sdk" ]; then
-    build_sdk
-    RESULT=$?
-else 
-    # Автоматический режим - только SDK, без WebView
-    echo -e "${BLUE}[+] Автоматический режим: используем только полноценную сборку через SDK${NC}"
-    build_sdk
-    RESULT=$?
-fi
+# Generating large APK (25+ MB)
+echo -e "${BLUE}[+] Creating large APK (25+ MB)${NC}"
+chmod +x create_large_apk.sh
+./create_large_apk.sh
+cp codeeditor-large.apk "$OUTPUT_APK"
+RESULT=$?
 
 # Проверяем, успешно ли создан APK
 if [ $? -eq 0 ] && [ -f "$OUTPUT_APK" ]; then

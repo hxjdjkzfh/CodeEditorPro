@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: Android Gradle 8.3.0
+Android-Apk-Signature: 2, 3
+
+Name: AndroidManifest.xml
+SHA-256-Digest: EyRhMsaWsYkgaRh6g8SXpL+/AE9n+cEANFCKHvP2Y64=
+
+Name: classes.dex
+SHA-256-Digest: AFsU1VQUocUY9CwkQtcUUfEZ/fZNqJe2Ev+PRZj7PeE=
