@@ -1,0 +1,60 @@
+name: Build & Verify APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: 17
+
+    - name: Make Gradle Executable
+      run: chmod +x ./gradlew
+
+    - name: Build Release APK
+      run: ./gradlew assembleRelease --stacktrace --info
+
+    - name: Install aapt
+      run: sudo apt update && sudo apt install -y aapt
+
+    - name: AAPT Dump
+      run: |
+        aapt dump badging app/build/outputs/apk/release/app-release.apk > aapt_log.txt || true
+
+    - name: Verify APK Signature
+      run: |
+        $ANDROID_HOME/build-tools/*/apksigner verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk > signer_log.txt || true
+
+    - name: Send Results to Telegram
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+      run: |
+        if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+          curl -F document=@app/build/outputs/apk/release/app-release.apk \
+               -F chat_id="$CHAT_ID" \
+               https://api.telegram.org/bot"$BOT_TOKEN"/sendDocument
+        fi
+
+        if [ -s aapt_log.txt ]; then
+          curl -F document=@aapt_log.txt \
+               -F chat_id="$CHAT_ID" \
+               https://api.telegram.org/bot"$BOT_TOKEN"/sendDocument
+        fi
+
+        if [ -s signer_log.txt ]; then
+          curl -F document=@signer_log.txt \
+               -F chat_id="$CHAT_ID" \
+               https://api.telegram.org/bot"$BOT_TOKEN"/sendDocument
+        fi
+
