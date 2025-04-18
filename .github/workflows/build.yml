@@ -27,7 +27,7 @@ jobs:
     
     # Setup Android environment
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v2.0.10
       
     # Install Python for the build script
     - name: Set up Python
@@ -43,7 +43,7 @@ jobs:
     
     # Upload the built APK
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: code-editor-app
         path: code-editor.apk
