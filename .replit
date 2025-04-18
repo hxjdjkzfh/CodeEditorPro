@@ -83,7 +83,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./build_and_send.sh \"Полноценная сборка через Android SDK с автоматической отправкой в Telegram\""
+args = "./build_and_send.sh \"APK с правильным DEX файлом\""
 
 [[workflows.workflow]]
 name = "Build Real APK"
