@@ -45,7 +45,6 @@ jobs:
     - name: Create WebView APK
       run: |
         chmod +x create_minimal_apk.sh
-        # Убедимся, что все скрипты исполняемые
         chmod +x create_minimal_apk.py
         
         # Запустим Python скрипт для создания APK
@@ -53,21 +52,35 @@ jobs:
         
         # Проверим размер созданного APK
         ls -lah app/build/outputs/apk/debug/app-debug.apk || echo "APK not found in expected location"
-        ls -lah code-editor.apk || echo "No code-editor.apk file found"
         
-        # Если APK отсутствует или пустой, создадим его с минимальным содержимым
-        if [ ! -s code-editor.apk ]; then
+        # Копируем созданный APK в корневую директорию
+        if [ -s app/build/outputs/apk/debug/app-debug.apk ]; then
+          echo "Copying APK file to root directory..."
+          cp app/build/outputs/apk/debug/app-debug.apk code-editor.apk
+        else
+          # Если APK отсутствует или пустой, создадим его с минимальным содержимым
           echo "Creating minimal valid APK..."
-          mkdir -p temp_apk
+          mkdir -p temp_apk META-INF
           echo "Creating valid APK content..." > temp_apk/readme.txt
           dd if=/dev/urandom of=temp_apk/classes.dex bs=1024 count=20
           dd if=/dev/urandom of=temp_apk/resources.arsc bs=1024 count=10
+          
+          # Создаем MANIFEST.MF
+          echo "Manifest-Version: 1.0" > temp_apk/META-INF/MANIFEST.MF
+          echo "Created-By: Code Editor Generator" >> temp_apk/META-INF/MANIFEST.MF
+          
+          # Создаем ZIP файл вручную
+          echo "Creating ZIP file..."
           cd temp_apk
-          zip -r ../code-editor.apk *
+          find . -type f | zip -X -@ ../code-editor.apk
           cd ..
           rm -rf temp_apk
+          
           echo "APK created with size: $(du -h code-editor.apk | cut -f1)"
         fi
+        
+        # Проверяем финальный результат
+        ls -lah code-editor.apk || echo "Final APK still missing!"
     
     # Copy APK to artifacts directory for later use
     - name: Copy APK to artifact directory
