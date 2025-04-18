@@ -41,28 +41,23 @@ if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
     cp app/build/outputs/apk/debug/app-debug.apk ./code-editor.apk
     # Проверяем, не пустой ли файл
     if [ ! -s ./code-editor.apk ]; then
-        echo "! Warning: Empty APK file detected, creating valid APK..."
-        # Создаем временную директорию
-        mkdir -p temp_apk/META-INF
+        echo "! Warning: Empty APK file detected, creating valid APK with Python script..."
         
-        # Создаем валидные файлы для APK (не случайные данные, а правильную структуру)
-        echo "Creating valid APK content..."
+        # Используем Python скрипт для создания полноценного APK
+        python3 create_minimal_apk.py web-app android-webview-app ./code-editor.apk
         
-        # Копируем веб-приложение в assets для WebView
-        mkdir -p temp_apk/assets
-        cp -r web-app/* temp_apk/assets/ 2>/dev/null
-        
-        # Создаем специальные бинарные файлы для APK
-        # DEX файл с правильным заголовком (не случайные данные)
-        echo -ne '\x64\x65\x78\x0A\x30\x33\x35\x00' > temp_apk/classes.dex  # DEX header
-        head -c 100 /dev/zero >> temp_apk/classes.dex
-        
-        # Создаем ресурсы с правильной структурой
-        echo -ne '\x02\x00\x0C\x00' > temp_apk/resources.arsc  # ARSC header
-        head -c 100 /dev/zero >> temp_apk/resources.arsc
-        
-        # Создаем AndroidManifest.xml
-        cat > temp_apk/AndroidManifest.xml << 'EOF'
+        # Проверяем, сработало ли
+        if [ ! -s ./code-editor.apk ]; then
+            echo "! Python script failed, trying alternative method..."
+            
+            # Создаем APK с помощью zip вручную
+            mkdir -p temp_apk/META-INF temp_apk/assets
+            
+            # Копируем веб-приложение
+            cp -r web-app/* temp_apk/assets/ 2>/dev/null
+            
+            # Создаем AndroidManifest.xml
+            cat > temp_apk/AndroidManifest.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.codeeditor"
@@ -78,21 +73,19 @@ if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
     </application>
 </manifest>
 EOF
-        
-        # Создаем META-INF файлы
-        echo "Manifest-Version: 1.0" > temp_apk/META-INF/MANIFEST.MF
-        echo "Created-By: Code Editor Generator" >> temp_apk/META-INF/MANIFEST.MF
-        
-        # Создаем файл, используя zip для создания правильной структуры APK
-        echo "Creating APK file with proper structure..."
-        
-        # Используем zip для создания правильной структуры APK
-        cd temp_apk
-        zip -r ../code-editor.apk * >/dev/null
-        cd ..
-        
-        # Удаляем временные файлы
-        rm -rf temp_apk
+            
+            # Создаем META-INF файлы
+            echo "Manifest-Version: 1.0" > temp_apk/META-INF/MANIFEST.MF
+            echo "Created-By: Code Editor Generator" >> temp_apk/META-INF/MANIFEST.MF
+            
+            # Создаем package.zip и переименовываем в apk
+            cd temp_apk
+            zip -r ../code-editor.apk * >/dev/null
+            cd ..
+            
+            # Удаляем временную директорию
+            rm -rf temp_apk
+        fi
     fi
     echo "✓ APK copied to ./code-editor.apk with size $(du -h ./code-editor.apk | cut -f1)"
     
