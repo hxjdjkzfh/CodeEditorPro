@@ -9,6 +9,7 @@
 <body>
     <div class="editor-container">
         <div class="toolbar">
+            <div class="drawer-handle" id="drawer-handle"></div>
             <div class="tabs" id="tabs">
                 <div class="tab active" data-file="main.js">main.js</div>
                 <div class="tab-add" id="new-tab">+</div>
@@ -18,12 +19,78 @@
                 <button id="run-btn">Run</button>
             </div>
         </div>
-        <div class="editor" id="editor" contenteditable="true"></div>
+        
+        <div class="drawer" id="drawer">
+            <div class="drawer-content">
+                <div class="drawer-header">File Operations</div>
+                <div class="drawer-menu">
+                    <button id="new-file-btn">New File</button>
+                    <button id="open-file-btn">Open File</button>
+                    <button id="save-file-btn">Save As...</button>
+                    <button id="settings-btn">Settings</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="editor-area">
+            <div class="line-numbers" id="line-numbers"></div>
+            <div class="editor" id="editor" contenteditable="true"></div>
+        </div>
+        
         <div class="console" id="console">
             <div class="console-header">Console</div>
             <div class="console-output" id="console-output"></div>
         </div>
     </div>
+    
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <span class="close-modal" id="close-settings">&times;</span>
+            </div>
+            <div class="modal-body">
+                <h3>Theme</h3>
+                <select id="theme-select">
+                    <option value="dark">Dark Theme</option>
+                    <option value="high-contrast">High Contrast (Windows 98)</option>
+                    <option value="light">Light Theme</option>
+                </select>
+                
+                <h3>Editor Options</h3>
+                <div class="setting-option">
+                    <label for="auto-backup">Auto-backup interval (minutes):</label>
+                    <input type="number" id="auto-backup" min="1" max="60" value="5">
+                </div>
+                
+                <div class="setting-option">
+                    <input type="checkbox" id="line-wrap" checked>
+                    <label for="line-wrap">Line wrapping</label>
+                </div>
+                
+                <div class="setting-option">
+                    <input type="checkbox" id="show-line-numbers" checked>
+                    <label for="show-line-numbers">Show line numbers</label>
+                </div>
+                
+                <div class="setting-option">
+                    <label for="font-size">Font size:</label>
+                    <input type="number" id="font-size" min="8" max="24" value="14">
+                </div>
+                
+                <h3>Drawer Position</h3>
+                <select id="drawer-position">
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings">Save</button>
+                <button id="cancel-settings">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/script.js"></script>
 </body>
 </html>
