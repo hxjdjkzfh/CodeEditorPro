@@ -1,4 +1,4 @@
-name: Build Android App
+name: Build Full Android App
 
 # Add permissions needed for actions
 permissions:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-app:
-    name: Build Android App
+    name: Build Full Android SDK App
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -31,47 +31,23 @@ jobs:
       with:
         cmdline-tools-version: latest
         
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Create local.properties with SDK path
-      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
-      
-    - name: Build with Gradle
-      run: ./gradlew build
-      
-    - name: Build debug APK
-      run: ./gradlew assembleDebug
-      
-    # Upload standard app artifact
-    - name: Upload Standard Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-editor-standard-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-    
-    # Send Standard APK to Telegram
-    - name: Send Standard APK to Telegram
-      if: success()
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: "✅ Code Editor APK built successfully!"
-        document: app/build/outputs/apk/debug/app-debug.apk
-      
-    # Create WebView app structure
-    - name: Create WebView app structure
+    - name: Accept all Android SDK licenses
       run: |
-        mkdir -p android-webview-app/app/src/main
-        mkdir -p android-webview-app/app/src/main/java/com/example/codeeditor
-        mkdir -p android-webview-app/app/src/main/res/layout
-        mkdir -p android-webview-app/app/src/main/res/values
-        mkdir -p android-webview-app/app/src/main/res/drawable
-        mkdir -p android-webview-app/app/src/main/assets
+        mkdir -p $ANDROID_HOME/licenses
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+        
+    - name: Create app structure
+      run: |
+        mkdir -p android-app/app/src/main
+        mkdir -p android-app/app/src/main/java/com/example/codeeditor
+        mkdir -p android-app/app/src/main/res/layout
+        mkdir -p android-app/app/src/main/res/values
+        mkdir -p android-app/app/src/main/res/drawable
+        mkdir -p android-app/app/src/main/assets
         
         # Create icon for the app
-        cat > android-webview-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
+        cat > android-app/app/src/main/res/drawable/app_icon.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -88,10 +64,10 @@ jobs:
 EOF
         
         # Copying web app assets
-        cp -r web-app/* android-webview-app/app/src/main/assets/
+        cp -r web-app/* android-app/app/src/main/assets/
         
         # Creating basic Android files
-        cat > android-webview-app/app/src/main/AndroidManifest.xml << 'EOF'
+        cat > android-app/app/src/main/AndroidManifest.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.codeeditor">
@@ -116,7 +92,7 @@ EOF
 </manifest>
 EOF
         
-        cat > android-webview-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
+        cat > android-app/app/src/main/java/com/example/codeeditor/MainActivity.java << 'EOF'
 package com.example.codeeditor;
 
 import android.app.Activity;
@@ -248,7 +224,7 @@ public class MainActivity extends Activity {
 }
 EOF
         
-        cat > android-webview-app/app/src/main/res/layout/activity_main.xml << 'EOF'
+        cat > android-app/app/src/main/res/layout/activity_main.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -263,14 +239,14 @@ EOF
 </RelativeLayout>
 EOF
         
-        cat > android-webview-app/app/src/main/res/values/strings.xml << 'EOF'
+        cat > android-app/app/src/main/res/values/strings.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Code Editor</string>
+    <string name="app_name">Code Editor Pro</string>
 </resources>
 EOF
 
-        cat > android-webview-app/app/src/main/res/values/styles.xml << 'EOF'
+        cat > android-app/app/src/main/res/values/styles.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
@@ -283,7 +259,7 @@ EOF
 EOF
         
         # Creating build files
-        cat > android-webview-app/app/build.gradle << 'EOF'
+        cat > android-app/app/build.gradle << 'EOF'
 plugins {
     id 'com.android.application'
 }
@@ -332,7 +308,7 @@ dependencies {
 }
 EOF
         
-        cat > android-webview-app/build.gradle << 'EOF'
+        cat > android-app/build.gradle << 'EOF'
 buildscript {
     repositories {
         google()
@@ -355,7 +331,7 @@ task clean(type: Delete) {
 }
 EOF
         
-        cat > android-webview-app/settings.gradle << 'EOF'
+        cat > android-app/settings.gradle << 'EOF'
 pluginManagement {
     repositories {
         google()
@@ -372,30 +348,33 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CodeEditor"
+rootProject.name = "CodeEditorPro"
 include ':app'
 EOF
         
-        cat > android-webview-app/gradle.properties << 'EOF'
+        cat > android-app/gradle.properties << 'EOF'
 # Project-wide Gradle settings
-org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError
+
 # AndroidX settings
 android.useAndroidX=true
 android.enableJetifier=true
+
 # Gradle settings
 org.gradle.parallel=true
 org.gradle.caching=true
-org.gradle.daemon=true
+org.gradle.daemon=false
+android.builder.sdkDownload=true
 EOF
         
         # Create Gradle wrapper directory
-        mkdir -p android-webview-app/gradle/wrapper
+        mkdir -p android-app/gradle/wrapper
         
         # Download latest Gradle wrapper JAR file
-        curl -L -o android-webview-app/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar
+        curl -L -o android-app/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar
         
         # Create gradle-wrapper.properties file with latest Gradle version
-        cat > android-webview-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
+        cat > android-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
 distributionUrl=https\://services.gradle.org/distributions/gradle-8.6-all.zip
@@ -403,29 +382,225 @@ zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 EOF
         
-        chmod +x android-webview-app/gradlew
+        # Create gradlew file
+        cat > android-app/gradlew << 'EOF'
+#!/bin/sh
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+APP_HOME="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS=""
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "`uname`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+  NONSTOP* )
+    nonstop=true
+    ;;
+esac
+
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
+
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
+
+# For Darwin, add options to specify how the application appears in the dock
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
+fi
+
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin ; then
+    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+    JAVACMD=`cygpath --unix "$JAVACMD"`
+
+    # We build the pattern for arguments to be converted via cygpath
+    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+    SEP=""
+    for dir in $ROOTDIRSRAW ; do
+        ROOTDIRS="$ROOTDIRS$SEP$dir"
+        SEP="|"
+    done
+    OURCYGPATTERN="(^($ROOTDIRS))"
+    # Add a user-defined pattern to the cygpath arguments
+    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+    fi
+    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+    i=0
+    for arg in "$@" ; do
+        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
+
+        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
+            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
+        else
+            eval `echo args$i`="\"$arg\""
+        fi
+        i=$((i+1))
+    done
+    case $i in
+        (0) set -- ;;
+        (1) set -- "$args0" ;;
+        (2) set -- "$args0" "$args1" ;;
+        (3) set -- "$args0" "$args1" "$args2" ;;
+        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
+        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
+        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
+        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
+        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
+        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
+    esac
+fi
+
+# Escape application args
+save () {
+    for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
+    echo " "
+}
+APP_ARGS=$(save "$@")
+
+# Collect all arguments for the java command, following the shell quoting and substitution rules
+eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
+
+# by default we should be in the correct project dir, but when run from Finder on Mac, the cwd is wrong
+if [ "$(uname)" = "Darwin" ] && [ "$HOME" = "$PWD" ]; then
+  cd "$(dirname "$0")"
+fi
+
+exec "$JAVACMD" "$@"
+EOF
         
-    - name: Build WebView App
+        # Make gradlew executable
+        chmod +x android-app/gradlew
+        
+    - name: Build Full Android App
       run: |
-        cd android-webview-app
+        cd android-app
         echo "sdk.dir=$ANDROID_HOME" > local.properties
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --no-daemon --warning-mode=all --info
+    
+    # Copy APK to a consistent location
+    - name: Copy APK to standard location
+      run: |
+        mkdir -p outputs
+        cp android-app/app/build/outputs/apk/debug/app-debug.apk outputs/code-editor-pro.apk
       
-# Убрана сборка минимального APK в пользу полной сборки Gradle
-      
-    # Upload WebView app artifact
-    - name: Upload WebView Artifact
+    # Upload the APK artifact
+    - name: Upload Full APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: code-editor-webview-apk
-        path: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
+        name: code-editor-pro-apk
+        path: outputs/code-editor-pro.apk
     
-    # Send WebView APK to Telegram
-    - name: Send WebView APK to Telegram
-      if: success()
+    # Send Full APK to Telegram
+    - name: Send APK to Telegram
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: "✅ Code Editor WebView APK built successfully!"
-        document: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
+        message: "✅ Code Editor Pro APK сборка завершена! Полноценный APK готов к установке."
+        document: outputs/code-editor-pro.apk
+    
+    # Create GitHub Release with APK
+    - name: Create Release
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Code Editor Pro - Latest Build
+        tag_name: v1.0.${{ github.run_number }}
+        files: |
+          outputs/code-editor-pro.apk
+        body: |
+          ## Code Editor Pro - Новая сборка
+          
+          Полноценное Android приложение для редактирования кода.
+          
+          ### Особенности:
+          - Поддержка синтаксиса множества языков
+          - Интуитивный интерфейс с вкладками
+          - Автоматическое сохранение кода
+          - Темная тема оформления
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
