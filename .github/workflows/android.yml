@@ -34,7 +34,7 @@ jobs:
       run: ./gradlew assembleDebug
       
     - name: Upload APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v1
       with:
         name: standard-app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
@@ -573,7 +573,7 @@ EOF
         ./gradlew assembleDebug
       
     - name: Upload WebView APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v1
       with:
         name: webview-app-debug
         path: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
