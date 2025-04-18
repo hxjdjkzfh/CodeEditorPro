@@ -14,9 +14,9 @@
 
 ## Скачать
 
-### Последний релиз (v1.0)
+### Последняя версия (28MB)
 
-✅ [Скачать APK](https://github.com/hxjdjkzfh/CodeEditorPro/releases/download/v1.0.202504181334-final/code-editor-final.apk)
+✅ [Скачать APK (28MB)](https://github.com/hxjdjkzfh/CodeEditorPro/releases/latest/download/code-editor-full.apk)
 
 ## Инструкции по установке
 
@@ -31,3 +31,4 @@
 - Android SDK
 - Gradle
 - GitHub Actions для CI/CD
+- Telegram Bot API для отправки сборок
