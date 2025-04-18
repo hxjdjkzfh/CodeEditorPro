@@ -39,6 +39,10 @@ args = "Build Direct APK"
 task = "workflow.run"
 args = "Build From Existing"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Working APK"
+
 [[workflows.workflow]]
 name = "Android App"
 author = "agent"
@@ -136,6 +140,20 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./build_from_existing.sh"
+
+[[workflows.workflow]]
+name = "Build Working APK"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./create_full_working_apk.sh"
 
 [deployment]
 run = ["sh", "-c", "cd /home/runner/workspace && ./build_android.sh"]
