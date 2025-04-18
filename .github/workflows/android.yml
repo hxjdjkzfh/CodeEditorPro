@@ -46,6 +46,16 @@ jobs:
         name: code-editor-standard-apk
         path: app/build/outputs/apk/debug/app-debug.apk
         
+    # Send APK to Telegram
+    - name: Send APK to Telegram
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Code Editor APK built successfully!"
+        document: app/build/outputs/apk/debug/app-debug.apk
+        
     # Create a GitHub Release when tags are pushed
     - name: Create Release
       id: create_release
@@ -601,6 +611,23 @@ EOF
       run: |
         cd android-webview-app
         ./gradlew assembleDebug
+      
+    # Upload WebView app artifact
+    - name: Upload WebView Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-editor-webview-apk
+        path: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
+    
+    # Send WebView APK to Telegram
+    - name: Send WebView APK to Telegram
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Code Editor WebView APK built successfully!"
+        document: android-webview-app/app/build/outputs/apk/debug/app-debug.apk
       
     - name: Create WebView Release
       id: create_webview_release
