@@ -1,5 +1,10 @@
 name: Build WebView App
 
+# Add permissions needed for creating releases
+permissions:
+  contents: write
+  packages: write
+
 on:
   push:
     branches: [ main, master ]
